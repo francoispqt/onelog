@@ -146,6 +146,8 @@ logger.Fatal("oh my...", func(enc *onelog.Encoder) {
 
 ## Accumulate context
 You can create get a logger with some accumulated context that will be included on all logs created by this logger.
+
+To do that, you must call the `With` method on a logger.
 Internally it creates a copy of the current logger and returns it. 
 
 Example: 
@@ -163,7 +165,7 @@ logger.Debug("wtf?") // {"level":"debug","message":"wtf?","userID","123456"}
 
 logger.ErrorWithFields("Oops", func(enc *Encoder) {
     enc.AddStringKey("error_code", "ROFL")
-}) // {"level":"error","message":"oops","userID","123456"}
+}) // {"level":"error","message":"oops","userID","123456","error_code":"ROFL"}
 ```
 
 ## Change levels txt values, message and/or level keys

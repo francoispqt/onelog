@@ -36,7 +36,7 @@ func main() {
 
 ## Levels
 
-Levels are ints mapped to a string. The logger will check if level is enabled with an efficient bitwise &(AND), if disabled, it returns right away which makes onelog the fastest when running disabled logging with 0 allocs and less than 1ns/op. See benchmarks. 
+Levels are ints mapped to a string. The logger will check if level is enabled with an efficient bitwise &(AND), if disabled, it returns right away which makes onelog the fastest when running disabled logging with 0 allocs and less than 1ns/op. [See benchmarks](#benchmark-results)).
 
 When creating a logger you must use the `|` operator with different levels to toggle bytes. 
 
@@ -75,9 +75,9 @@ Available levels:
 - onelog.ERROR
 - onelog.FATAL
 
-You can change their textual values by doing: 
+You can change their textual values by doing, do this only once at runtime as it is not thread safe: 
 ```go
-onelog.Levels[onelog.INFO] = "FOOBAR"
+onelog.LevelText(onelog.INFO, "INFO")
 ```
 
 ## Hook
@@ -169,7 +169,7 @@ logger.ErrorWithFields("Oops", func(enc *Encoder) {
 ## Change levels txt values, message and/or level keys
 You can change globally the levels values by calling the function: 
 ```go
-onelog.LevelText(INFO, "INFO")
+onelog.LevelText(onelog.INFO, "INFO")
 ```
 
 You can change the key of the message by calling the function: 

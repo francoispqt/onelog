@@ -36,7 +36,7 @@ func main() {
 
 ## Levels
 
-Levels are ints mapped to a string. The logger will check if level is enabled with an efficient bitwise &(AND), if disabled, it returns right away which makes onelog the fastest when running disabled logging with 0 allocs and less than 1ns/op. [See benchmarks](#benchmark-results)).
+Levels are ints mapped to a string. The logger will check if level is enabled with an efficient bitwise &(AND), if disabled, it returns right away which makes onelog the fastest when running disabled logging with 0 allocs and less than 1ns/op. [See benchmarks](#benchmark))
 
 When creating a logger you must use the `|` operator with different levels to toggle bytes. 
 

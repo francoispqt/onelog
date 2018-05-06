@@ -1,15 +1,15 @@
 # onelog
 
 onelog is a dead simple but very efficient JSON logger. 
-It is one of the fastest JSON logger out there and the fastest when logging extra fields and keeps low allocation. 
+It is one of the fastest JSON logger out there and the fastest when logging extra fields. Also, it is one of the logger with the lowest allocation.
 
 It gives more control over log levels enabled by using bitwise operation for setting levels on a logger.
 
-It is also modular as you can add a custom hook, define level and message keys.
+It is also modular as you can add a custom hook, define level text values, level and message keys.
 
 Go 1.9 is required as it uses a type alias over gojay.Encoder.
 
-It is named onelog because when logging just a message it does a single allocation (reference to zerolog), and also because it sounds like `One Love` song from Bob Marley :)
+It is named onelog as a reference to zerolog and because it sounds like `One Love` song from Bob Marley :)
 
 ## Get Started
 
@@ -36,7 +36,7 @@ func main() {
 
 ## Levels
 
-Levels are ints mapped to a string. The logger will check if level is enabled with a very efficient bitwise &, which makes onelog the fastest when running disabled logging with 0 allocs and merely 1ns/op. See benchmarks. 
+Levels are ints mapped to a string. The logger will check if level is enabled with an efficient bitwise &(AND), if disabled, it returns right away which makes onelog the fastest when running disabled logging with 0 allocs and less than 1ns/op. See benchmarks. 
 
 When creating a logger you must use the `|` operator with different levels to toggle bytes. 
 
@@ -57,7 +57,7 @@ func init() {
     if os.Getenv("DEBUG") != "" {
         logger = onelog.NewLogger(
             os.Stdout, 
-            onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
+            onelog.ALL, // shortcut for onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL
         )
         return
     }
@@ -82,7 +82,9 @@ onelog.Levels[onelog.INFO] = "FOOBAR"
 
 ## Hook
 
-You can define a hook which will be run for every log message. Example:
+You can define a hook which will be run for every log message. 
+
+Example:
 ```go 
 logger := onelog.NewLogger(
     os.Stdout, 
@@ -142,6 +144,46 @@ logger.Fatal("oh my...", func(enc *onelog.Encoder) {
 }) // {"level":"fatal","message":"oh my...","userID":"123456"}
 ```
 
+## Accumulate context
+You can create get a logger with some accumulated context that will be included on all logs created by this logger.
+Internally it creates a copy of the current logger and returns it. 
+
+Example: 
+```go 
+logger := onelog.NewLogger(
+    os.Stdout, 
+    onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
+).With(func(enc *Encoder) {
+    enc.AddStringKey("userID", "123456")
+})
+
+logger.Info("user logged in") // {"level":"info","message":"user logged in","userID","123456"}
+
+logger.Debug("wtf?") // {"level":"debug","message":"wtf?","userID","123456"}
+
+logger.ErrorWithFields("Oops", func(enc *Encoder) {
+    enc.AddStringKey("error_code", "ROFL")
+}) // {"level":"error","message":"oops","userID","123456"}
+```
+
+## Change levels txt values, message and/or level keys
+You can change globally the levels values by calling the function: 
+```go
+onelog.LevelText(INFO, "INFO")
+```
+
+You can change the key of the message by calling the function: 
+```go 
+onelog.MsgKey("msg")
+```
+
+You can change the key of the level by calling the function: 
+```go 
+onelog.LevelKey("lvl")
+```
+
+Beware, these changes are global (affects all instances of the logger). Also, these function should be called only once at runtime to avoid any data race issue.
+
 # Benchmarks
 
 The benchmark data presented here is the one from Uber's benchmark suite where we added onelog. 
@@ -172,10 +214,18 @@ A pull request will be submitted to Zap to integrate onelog in the benchmarks.
 | logrus      | 1256  | 1554         | 24        |
 | onelog      | 329   | 0            | 0         |
 
+## Logging basic message and accumulated context
+|             | ns/op | bytes/op     | allocs/op |
+|-------------|-------|--------------|-----------|
+| Zap         | 276   | 0            | 0         |
+| zerolog     | 164   | 0            | 0         |
+| logrus      | 1256  | 1554         | 24        |
+| onelog      | 353   | 0            | 0         |
+
 ## Logging message with extra fields
 |             | ns/op | bytes/op     | allocs/op |
 |-------------|-------|--------------|-----------|
 | Zap         | 1764  | 770          | 5         |
 | zerolog     | 9869  | 8515         | 84        |
 | logrus      | 13211 | 13584        | 129       |
-| onelog      | 1079  | 176          | 4         |
+| onelog      | 1047  | 128          | 4         |

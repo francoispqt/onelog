@@ -1,7 +1,5 @@
 package onelog
 
-import "sync"
-
 const (
 	// INFO is the numeric code for INFO log level
 	INFO = 0x1
@@ -24,8 +22,6 @@ var levelsJSON = make([][]byte, 256)
 var levelsStreamJSON = make([][]byte, 256)
 
 var levelKey = "level"
-
-var mux = sync.Mutex{}
 
 func init() {
 	Levels[INFO] = "info"

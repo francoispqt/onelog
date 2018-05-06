@@ -2,24 +2,24 @@ package onelog
 
 import (
 	"io"
+	"runtime"
+	"strconv"
 
 	"github.com/francoispqt/gojay"
 )
 
+var logClose = []byte("}\n")
 var msgKey = "message"
 
 // LevelText personalises the text for a specific level
 func LevelText(level int, txt string) {
-	mux.Lock()
 	Levels[level] = txt
 	genLevelSlices()
 	genStreamLevelSlices()
-	mux.Unlock()
 }
 
 // MsgKey sets the key for the message field
 func MsgKey(s string) {
-	mux.Lock()
 	msgKey = s
 	genLevelSlices()
 	genStreamLevelSlices()
@@ -27,11 +27,9 @@ func MsgKey(s string) {
 
 // LevelKey sets the key for the level field
 func LevelKey(s string) {
-	mux.Lock()
 	levelKey = s
 	genLevelSlices()
 	genStreamLevelSlices()
-	mux.Unlock()
 }
 
 // Encoder is an alias to gojay.Encoder
@@ -79,45 +77,6 @@ func (l *Logger) With(f func(*Encoder)) *Logger {
 	nL.ctx = enc.Buf()[1:]
 	return nL
 }
-
-// logging functions
-
-// // Log logs an entry
-// func (l *Logger) Log(level uint8, msg string) {
-// 	// first find writer for level
-// 	// if none, stop
-// 	if level&l.levels == 0 {
-// 		return
-// 	}
-
-// 	// then call format on formatter
-// 	l.Format(func(f *Encoder) {
-// 		f.AppendStringKey(l.lvlKey, Levels[level])
-// 		f.AppendString(msg)
-// 		if l.hook != nil {
-// 			l.hook(f)
-// 		}
-// 	})
-// }
-
-// // LogWithFields logs an entry with custom fields
-// func (l *Logger) LogWithFields(level uint8, msg string, fields func(*Encoder)) {
-// 	// first find writer for level
-// 	// if none, stop
-// 	if level&l.levels == 0 {
-// 		return
-// 	}
-
-// 	// then call format on formatter
-// 	l.Format(func(f *Encoder) {
-// 		f.AppendStringKey(l.lvlKey, Levels[level])
-// 		f.AppendString(msg)
-// 		if l.hook != nil {
-// 			l.hook(f)
-// 		}
-// 		fields(f)
-// 	})
-// }
 
 // Info logs an entry with INFO level
 func (l *Logger) Info(msg string) {
@@ -237,15 +196,15 @@ func (l *Logger) Format(level int, msg string) {
 	defer enc.Release()
 	// append first part containing object initialisation
 	// and message key
-	enc.AppendBuf(levelsJSON[level])
+	enc.AppendBytes(levelsJSON[level])
 	enc.AppendString(msg)
 	if l.ctx != nil {
-		enc.AppendBuf(l.ctx)
+		enc.AppendBytes(l.ctx)
 	}
 	if l.hook != nil {
 		l.hook(enc)
 	}
-	enc.AppendByte('}')
+	enc.AppendBytes(logClose)
 	enc.Write()
 }
 
@@ -256,15 +215,21 @@ func (l *Logger) FormatFields(level int, msg string, fields func(*Encoder)) {
 	defer enc.Release()
 	// append first part containing object initialisation
 	// and message key
-	enc.AppendBuf(levelsJSON[level])
+	enc.AppendBytes(levelsJSON[level])
 	enc.AppendString(msg)
 	if l.ctx != nil {
-		enc.AppendBuf(l.ctx)
+		enc.AppendBytes(l.ctx)
 	}
 	if l.hook != nil {
 		l.hook(enc)
 	}
 	fields(enc)
-	enc.AppendByte('}')
+	enc.AppendBytes(logClose)
 	enc.Write()
+}
+
+func (l *Logger) Caller(skip int) string {
+	_, f, fl, _ := runtime.Caller(skip)
+	flStr := strconv.Itoa(fl)
+	return f + ":" + flStr
 }

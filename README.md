@@ -1,3 +1,8 @@
+
+[![Build Status](https://travis-ci.org/francoispqt/onelog.svg?branch=master)](https://travis-ci.org/francoispqt/onelog)
+[![codecov](https://codecov.io/gh/francoispqt/onelog/branch/master/graph/badge.svg)](https://codecov.io/gh/francoispqt/onelog)
+[![Go Report Card](https://goreportcard.com/badge/github.com/francoispqt/onelog)](https://goreportcard.com/report/github.com/francoispqt/onelog)
+
 # onelog
 
 onelog is a dead simple but very efficient JSON logger. 
@@ -90,7 +95,7 @@ logger := onelog.NewLogger(
     os.Stdout, 
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
 )
-logger.Hook(func(enc *Encoder) {
+logger.Hook(func(enc *onelog.Encoder) {
     enc.AddStringKey("time", time.Now().Format(time.RFC3339))
 })
 logger.Info("hello world !") // {"level":"info","message":"hello world","time":"2018-05-06T02:21:01+08:00"}
@@ -155,7 +160,7 @@ Example:
 logger := onelog.NewLogger(
     os.Stdout, 
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
-).With(func(enc *Encoder) {
+).With(func(enc *onelog.Encoder) {
     enc.AddStringKey("userID", "123456")
 })
 
@@ -163,7 +168,7 @@ logger.Info("user logged in") // {"level":"info","message":"user logged in","use
 
 logger.Debug("wtf?") // {"level":"debug","message":"wtf?","userID","123456"}
 
-logger.ErrorWithFields("Oops", func(enc *Encoder) {
+logger.ErrorWithFields("Oops", func(enc *onelog.Encoder) {
     enc.AddStringKey("error_code", "ROFL")
 }) // {"level":"error","message":"oops","userID","123456","error_code":"ROFL"}
 ```

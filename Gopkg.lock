@@ -4,12 +4,12 @@
 [[projects]]
   name = "github.com/francoispqt/gojay"
   packages = ["."]
-  revision = "7a565adc8b519c6b40a3016bea655a24261bcc90"
-  version = "0.10.5"
+  revision = "6614f5b29388bba644bfdbc36cc3d62b42459d09"
+  version = "0.10.6"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "86f5e980a4f8f177462fdc322562ca3e01a4799a86f5fdaad814e808867087c6"
+  inputs-digest = "71ff7ac9cfc31a48fad99c34cc13e0d41e8d73d5acd062c1401b8bc9c2abbc9c"
   solver-name = "gps-cdcl"
   solver-version = 1

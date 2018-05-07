@@ -3,9 +3,8 @@
 [![codecov](https://codecov.io/gh/francoispqt/onelog/branch/master/graph/badge.svg)](https://codecov.io/gh/francoispqt/onelog)
 [![Go Report Card](https://goreportcard.com/badge/github.com/francoispqt/onelog)](https://goreportcard.com/report/github.com/francoispqt/onelog)
 
-# onelog
-
-onelog is a dead simple but very efficient JSON logger. 
+# Onelog
+Onelog is a dead simple but very efficient JSON logger. 
 It is one of the fastest JSON logger out there and the fastest when logging extra fields. Also, it is one of the logger with the lowest allocation.
 
 It gives more control over log levels enabled by using bitwise operation for setting levels on a logger.
@@ -31,7 +30,7 @@ func main() {
     // create a new Logger
     // first argument is an io.Writer
     // second argument is the level, which is an integer
-    logger := onelog.NewLogger(
+    logger := onelog.New(
         os.Stdout, 
         onelog.ALL, // shortcut for onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
     )
@@ -47,7 +46,7 @@ When creating a logger you must use the `|` operator with different levels to to
 
 Example if you want levels INFO and WARN:
 ```go
-logger := onelog.NewLogger(
+logger := onelog.New(
     os.Stdout, 
     onelog.INFO|onelog.WARN,
 )
@@ -60,13 +59,13 @@ var logger *onelog.Logger
 func init() {
     // if we are in debug mode, enable DEBUG lvl
     if os.Getenv("DEBUG") != "" {
-        logger = onelog.NewLogger(
+        logger = onelog.New(
             os.Stdout, 
             onelog.ALL, // shortcut for onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL
         )
         return
     }
-    logger = onelog.NewLogger(
+    logger = onelog.New(
         os.Stdout, 
         onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
     )
@@ -91,7 +90,7 @@ You can define a hook which will be run for every log message.
 
 Example:
 ```go 
-logger := onelog.NewLogger(
+logger := onelog.New(
     os.Stdout, 
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
 )
@@ -106,7 +105,7 @@ logger.Info("hello world !") // {"level":"info","message":"hello world","time":"
 ### Without extra fields
 Logging without extra fields is easy as:
 ```go 
-logger := onelog.NewLogger(
+logger := onelog.New(
     os.Stdout, 
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
 )
@@ -120,33 +119,42 @@ logger.Fatal("oh my...") // {"level":"fatal","message":"oh my..."}
 ### With extra fields 
 Logging with extra fields is quite simple, specially if you have used gojay:
 ```go 
-logger := onelog.NewLogger(
+logger := onelog.New(
     os.Stdout, 
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
 )
 
 logger.DebugWithFields("i'm not sure what's going on", func(e onelog.Entry) {
-    e.String("userID", "123455")
-    e.Object("user", func() {
+    e.String("string", "foobar")
+    e.Int("int", 12345)
+    e.Int64("int64", 12345)
+    e.Bool("bool", true)
+    e.Error("err", errors.New("someError"))
+    e.ObjectFunc("user", func() {
         e.String("name", "somename")
     })
-}) // {"level":"debug","message":"i'm not sure what's going on","userID":"123456","user":{"name":"somename"}}
+}) 
+// {"level":"debug","message":"i'm not sure what's going on","string":"foobar","int":12345,"int64":12345,"bool":true,"err":"someError","user":{"name":"somename"}}
 
-logger.Info("breaking news !", func(e onelog.Entry) {
+logger.InfoWithFields("breaking news !", func(e onelog.Entry) {
     e.String("userID", "123455")
-}) // {"level":"info","message":"breaking news !","userID":"123456"}
+}) 
+// {"level":"info","message":"breaking news !","userID":"123456"}
 
-logger.Warn("beware !", func(e onelog.Entry) {
+logger.WarnWithFields("beware !", func(e onelog.Entry) {
     e.String("userID", "123455")
-}) // {"level":"warn","message":"beware !","userID":"123456"}
+}) 
+// {"level":"warn","message":"beware !","userID":"123456"}
 
-logger.Error("my printer is on fire", func(e onelog.Entry) {
+logger.ErrorWithFields("my printer is on fire", func(e onelog.Entry) {
     e.String("userID", "123455")
-}) // {"level":"error","message":"my printer is on fire","userID":"123456"}
+}) 
+// {"level":"error","message":"my printer is on fire","userID":"123456"}
 
-logger.Fatal("oh my...", func(e onelog.Entry) {
+logger.FatalWithFields("oh my...", func(e onelog.Entry) {
     e.String("userID", "123455")
-}) // {"level":"fatal","message":"oh my...","userID":"123456"}
+}) 
+// {"level":"fatal","message":"oh my...","userID":"123456"}
 ```
 
 ## Accumulate context
@@ -157,7 +165,7 @@ Internally it creates a copy of the current logger and returns it.
 
 Example: 
 ```go 
-logger := onelog.NewLogger(
+logger := onelog.New(
     os.Stdout, 
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
 ).With(func(e onelog.Entry) {
@@ -219,7 +227,7 @@ A pull request will be submitted to Zap to integrate onelog in the benchmarks.
 | Zap         | 203   | 0            | 0         |
 | zerolog     | 154   | 0            | 0         |
 | logrus      | 1256  | 1554         | 24        |
-| onelog      | 329   | 0            | 0         |
+| onelog      | 317   | 0            | 0         |
 
 ## Logging basic message and accumulated context
 |             | ns/op | bytes/op     | allocs/op |
@@ -227,7 +235,7 @@ A pull request will be submitted to Zap to integrate onelog in the benchmarks.
 | Zap         | 276   | 0            | 0         |
 | zerolog     | 164   | 0            | 0         |
 | logrus      | 1256  | 1554         | 24        |
-| onelog      | 353   | 0            | 0         |
+| onelog      | 333   | 0            | 0         |
 
 ## Logging message with extra fields
 |             | ns/op | bytes/op     | allocs/op |

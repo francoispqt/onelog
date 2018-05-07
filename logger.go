@@ -11,28 +11,28 @@ import (
 var logClose = []byte("}\n")
 var msgKey = "message"
 
-// LevelText personalises the text for a specific level
+// LevelText personalises the text for a specific level.
 func LevelText(level int, txt string) {
 	Levels[level] = txt
 	genLevelSlices()
 }
 
-// MsgKey sets the key for the message field
+// MsgKey sets the key for the message field.
 func MsgKey(s string) {
 	msgKey = s
 	genLevelSlices()
 }
 
-// LevelKey sets the key for the level field
+// LevelKey sets the key for the level field.
 func LevelKey(s string) {
 	levelKey = s
 	genLevelSlices()
 }
 
-// Encoder is an alias to gojay.Encoder
+// Encoder is an alias to gojay.Encoder.
 type Encoder = gojay.Encoder
 
-// Object is an alias to gojay.EncodeObjectFunc
+// Object is an alias to gojay.EncodeObjectFunc.
 type Object = gojay.EncodeObjectFunc
 
 // Logger is the type representing a logger.
@@ -43,8 +43,8 @@ type Logger struct {
 	ctx    []byte
 }
 
-// NewLogger returns a fresh onelog Logger with default values.
-func NewLogger(w io.Writer, levels uint8) *Logger {
+// New returns a fresh onelog Logger with default values.
+func New(w io.Writer, levels uint8) *Logger {
 	return &Logger{
 		levels: levels,
 		w:      w,
@@ -65,7 +65,7 @@ func (l *Logger) copy() *Logger {
 	return &nL
 }
 
-// With copys the current Logger and adds it a context
+// With copies the current Logger and adds it a given context by running func f.
 func (l *Logger) With(f func(Entry)) *Logger {
 	nL := l.copy()
 	e := Entry{}
@@ -78,7 +78,7 @@ func (l *Logger) With(f func(Entry)) *Logger {
 	return nL
 }
 
-// Info logs an entry with INFO level
+// Info logs an entry with INFO level.
 func (l *Logger) Info(msg string) {
 	// first find writer for level
 	// if none, stop
@@ -97,7 +97,7 @@ func (l *Logger) Info(msg string) {
 	enc.Release()
 }
 
-// InfoWithFields logs an entry with INFO level and custom fields
+// InfoWithFields logs an entry with INFO level and custom fields.
 func (l *Logger) InfoWithFields(msg string, fields func(Entry)) {
 	// first find writer for level
 	// if none, stop
@@ -117,7 +117,7 @@ func (l *Logger) InfoWithFields(msg string, fields func(Entry)) {
 	enc.Release()
 }
 
-// Debug logs an entry with DEBUG level
+// Debug logs an entry with DEBUG level.
 func (l *Logger) Debug(msg string) {
 	// check if level is in config
 	// if not, return
@@ -136,7 +136,7 @@ func (l *Logger) Debug(msg string) {
 	enc.Release()
 }
 
-// DebugWithFields logs an entry with DEBUG level and custom fields
+// DebugWithFields logs an entry with DEBUG level and custom fields.
 func (l *Logger) DebugWithFields(msg string, fields func(Entry)) {
 	// check if level is in config
 	// if not, return
@@ -156,7 +156,7 @@ func (l *Logger) DebugWithFields(msg string, fields func(Entry)) {
 	enc.Release()
 }
 
-// Warn logs an entry with WARN level
+// Warn logs an entry with WARN level.
 func (l *Logger) Warn(msg string) {
 	// check if level is in config
 	// if not, return
@@ -175,7 +175,7 @@ func (l *Logger) Warn(msg string) {
 	enc.Release()
 }
 
-// WarnWithFields logs an entry with WARN level and custom fields
+// WarnWithFields logs an entry with WARN level and custom fields.
 func (l *Logger) WarnWithFields(msg string, fields func(Entry)) {
 	if WARN&l.levels == 0 {
 		return
@@ -210,7 +210,7 @@ func (l *Logger) Error(msg string) {
 	enc.Release()
 }
 
-// ErrorWithFields logs an entry with ERROR level and custom fields
+// ErrorWithFields logs an entry with ERROR level and custom fields.
 func (l *Logger) ErrorWithFields(msg string, fields func(Entry)) {
 	if ERROR&l.levels == 0 {
 		return
@@ -228,7 +228,7 @@ func (l *Logger) ErrorWithFields(msg string, fields func(Entry)) {
 	enc.Release()
 }
 
-// Fatal logs an entry with FATAL level
+// Fatal logs an entry with FATAL level.
 func (l *Logger) Fatal(msg string) {
 	if FATAL&l.levels == 0 {
 		return
@@ -245,7 +245,7 @@ func (l *Logger) Fatal(msg string) {
 	enc.Release()
 }
 
-// FatalWithFields logs an entry with FATAL level and custom fields
+// FatalWithFields logs an entry with FATAL level and custom fields.
 func (l *Logger) FatalWithFields(msg string, fields func(Entry)) {
 	if FATAL&l.levels == 0 {
 		return

@@ -10,9 +10,9 @@ import (
 
 func BenchmarkOnelog(b *testing.B) {
 	b.Run("with-fields", func(b *testing.B) {
-		logger := onelog.NewLogger(ioutil.Discard, onelog.ALL).
+		logger := onelog.New(ioutil.Discard, onelog.ALL).
 			Hook(func(e onelog.Entry) {
-				e.Int("time", int(time.Now().Unix()))
+				e.Int64("time", time.Now().Unix())
 			})
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
@@ -31,9 +31,9 @@ func BenchmarkOnelog(b *testing.B) {
 		})
 	})
 	b.Run("message-only", func(b *testing.B) {
-		logger := onelog.NewLogger(ioutil.Discard, onelog.ALL).
+		logger := onelog.New(ioutil.Discard, onelog.ALL).
 			Hook(func(e onelog.Entry) {
-				e.Int("time", int(time.Now().Unix()))
+				e.Int64("time", time.Now().Unix())
 			})
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {

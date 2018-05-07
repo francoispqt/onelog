@@ -39,10 +39,22 @@ func (t *TestObj) IsNil() bool {
 	return t == nil
 }
 
+type TestObjArr []*TestObj
+
+func (t TestObjArr) MarshalArray(enc *gojay.Encoder) {
+	for _, o := range t {
+		enc.AddObject(o)
+	}
+}
+
+func (t TestObjArr) IsNil() bool {
+	return len(t) == 0
+}
+
 func TestOnelogFeature(t *testing.T) {
 	t.Run("custom-msg-key", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		MsgKey("test")
 		logger.Info("message")
 		assert.Equal(t, `{"level":"info","test":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
@@ -50,7 +62,7 @@ func TestOnelogFeature(t *testing.T) {
 	})
 	t.Run("custom-lvl-key", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		LevelKey("test")
 		logger.Info("message")
 		assert.Equal(t, `{"test":"info","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
@@ -58,77 +70,77 @@ func TestOnelogFeature(t *testing.T) {
 	})
 	t.Run("custom-lvl-text", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		LevelText(DEBUG, "DEBUG")
 		logger.Debug("message")
 		assert.Equal(t, `{"level":"DEBUG","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
 		LevelText(DEBUG, "debug")
 	})
 	t.Run("caller", func(t *testing.T) {
-		logger := NewLogger(nil, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(nil, DEBUG|INFO|WARN|ERROR|FATAL)
 		str := logger.Caller(1)
 		strs := strings.Split(str, "/")
-		assert.Equal(t, "logger_test.go:69", strs[len(strs)-1], "file should be logger_test.go:69")
+		assert.Equal(t, "logger_test.go:81", strs[len(strs)-1], "file should be logger_test.go:81")
 	})
 }
 func TestOnelogWithoutFields(t *testing.T) {
 	t.Run("basic-message-info", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Info("message")
 		assert.Equal(t, `{"level":"info","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-debug", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Debug("message")
 		assert.Equal(t, `{"level":"debug","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-warn", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Warn("message")
 		assert.Equal(t, `{"level":"warn","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-error", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Error("message")
 		assert.Equal(t, `{"level":"error","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-fatal", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Fatal("message")
 		assert.Equal(t, `{"level":"fatal","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-disabled-level-info", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|WARN|ERROR|FATAL)
 		logger.Info("message")
 		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-disabled-level-debug", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, INFO|WARN|ERROR|FATAL)
+		logger := New(w, INFO|WARN|ERROR|FATAL)
 		logger.Debug("message")
 		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-disabled-level-warn", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, INFO|DEBUG|ERROR|FATAL)
+		logger := New(w, INFO|DEBUG|ERROR|FATAL)
 		logger.Warn("message")
 		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-disabled-level-error", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, INFO|WARN|DEBUG|FATAL)
+		logger := New(w, INFO|WARN|DEBUG|FATAL)
 		logger.Error("message")
 		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-disabled-level-fatal", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, INFO|WARN|ERROR|DEBUG)
+		logger := New(w, INFO|WARN|ERROR|DEBUG)
 		logger.Fatal("message")
 		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
 	})
@@ -137,8 +149,9 @@ func TestOnelogWithoutFields(t *testing.T) {
 func TestOnelogWithFields(t *testing.T) {
 	t.Run("fields-info", func(t *testing.T) {
 		testObj := &TestObj{foo: "bar"}
+		testArr := TestObjArr{testObj}
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.InfoWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -150,13 +163,14 @@ func TestOnelogWithFields(t *testing.T) {
 				e.String("name", "somename")
 			})
 			e.Object("testObj", testObj)
+			e.Array("testArr", testArr)
 		})
-		json := `{"level":"info","message":"message","userID":"123456","action":"login","result":"success","count":100,"done":true,"error":"some error","user":{"name":"somename"},"testObj":{"foo":"bar"}}` + "\n"
+		json := `{"level":"info","message":"message","userID":"123456","action":"login","result":"success","count":100,"done":true,"error":"some error","user":{"name":"somename"},"testObj":{"foo":"bar"},"testArr":[{"foo":"bar"}]}` + "\n"
 		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("fields-debug", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.DebugWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -167,7 +181,7 @@ func TestOnelogWithFields(t *testing.T) {
 	})
 	t.Run("fields-warn", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.WarnWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -178,7 +192,7 @@ func TestOnelogWithFields(t *testing.T) {
 	})
 	t.Run("fields-error", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.ErrorWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -189,18 +203,19 @@ func TestOnelogWithFields(t *testing.T) {
 	})
 	t.Run("fields-fatal", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
+			e.Int64("int64", 120)
 		})
-		json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success"}` + "\n"
+		json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success","int64":120}` + "\n"
 		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("fields-disabled-level-info", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|WARN|ERROR|FATAL)
 		logger.InfoWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -211,7 +226,7 @@ func TestOnelogWithFields(t *testing.T) {
 	})
 	t.Run("basic-message-disabled-level-debug", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, INFO|WARN|ERROR|FATAL)
+		logger := New(w, INFO|WARN|ERROR|FATAL)
 		logger.DebugWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -222,7 +237,7 @@ func TestOnelogWithFields(t *testing.T) {
 	})
 	t.Run("basic-message-disabled-level-warn", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, INFO|DEBUG|ERROR|FATAL)
+		logger := New(w, INFO|DEBUG|ERROR|FATAL)
 		logger.WarnWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -233,7 +248,7 @@ func TestOnelogWithFields(t *testing.T) {
 	})
 	t.Run("basic-message-disabled-level-error", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, INFO|WARN|DEBUG|FATAL)
+		logger := New(w, INFO|WARN|DEBUG|FATAL)
 		logger.ErrorWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -244,7 +259,7 @@ func TestOnelogWithFields(t *testing.T) {
 	})
 	t.Run("basic-message-disabled-level-fatal", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, INFO|WARN|ERROR|DEBUG)
+		logger := New(w, INFO|WARN|ERROR|DEBUG)
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -258,7 +273,7 @@ func TestOnelogWithFields(t *testing.T) {
 func TestOnelogHook(t *testing.T) {
 	t.Run("hook-basic-info", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -270,7 +285,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-basic-debug", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -282,7 +297,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-basic-warn", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -294,7 +309,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-basic-error", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -306,7 +321,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-basic-fatal", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -318,7 +333,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-fields-info", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -332,7 +347,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-fields-debug", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -346,7 +361,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-fields-warn", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -360,7 +375,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-fields-error", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -374,7 +389,7 @@ func TestOnelogHook(t *testing.T) {
 	})
 	t.Run("hook-fields-fatal", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -391,7 +406,7 @@ func TestOnelogHook(t *testing.T) {
 func TestOnelogContext(t *testing.T) {
 	t.Run("context-info-basic", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.Info("test")
@@ -401,7 +416,7 @@ func TestOnelogContext(t *testing.T) {
 	})
 	t.Run("context-info-fields", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.InfoWithFields("test", func(e Entry) {
@@ -413,7 +428,7 @@ func TestOnelogContext(t *testing.T) {
 
 	t.Run("context-debug-basic", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.Debug("test")
@@ -423,7 +438,7 @@ func TestOnelogContext(t *testing.T) {
 	})
 	t.Run("context-debug-fields", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.DebugWithFields("test", func(e Entry) {
@@ -435,7 +450,7 @@ func TestOnelogContext(t *testing.T) {
 
 	t.Run("context-warn-basic", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.Warn("test")
@@ -445,7 +460,7 @@ func TestOnelogContext(t *testing.T) {
 	})
 	t.Run("context-warn-fields", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.WarnWithFields("test", func(e Entry) {
@@ -457,7 +472,7 @@ func TestOnelogContext(t *testing.T) {
 
 	t.Run("context-error-basic", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.Error("test")
@@ -467,7 +482,7 @@ func TestOnelogContext(t *testing.T) {
 	})
 	t.Run("context-error-fields", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.ErrorWithFields("test", func(e Entry) {
@@ -479,7 +494,7 @@ func TestOnelogContext(t *testing.T) {
 
 	t.Run("context-fatal-basic", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.Fatal("test")
@@ -489,7 +504,7 @@ func TestOnelogContext(t *testing.T) {
 	})
 	t.Run("context-fatal-fields", func(t *testing.T) {
 		w := newWriter()
-		logger := NewLogger(w, ALL).With(func(e Entry) {
+		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
 		logger.FatalWithFields("test", func(e Entry) {

@@ -30,8 +30,6 @@ func init() {
 	Levels[ERROR] = "error"
 	Levels[FATAL] = "fatal"
 	genLevelSlices()
-	genStreamLevelSlices()
-
 }
 
 func genLevelSlices() {
@@ -40,12 +38,4 @@ func genLevelSlices() {
 	levelsJSON[WARN] = []byte(`{"` + levelKey + `":"` + Levels[WARN] + `","` + msgKey + `":`)
 	levelsJSON[ERROR] = []byte(`{"` + levelKey + `":"` + Levels[ERROR] + `","` + msgKey + `":`)
 	levelsJSON[FATAL] = []byte(`{"` + levelKey + `":"` + Levels[FATAL] + `","` + msgKey + `":`)
-}
-
-func genStreamLevelSlices() {
-	levelsStreamJSON[INFO] = []byte(`"` + levelKey + `":"` + Levels[INFO] + `","` + msgKey + `":`)
-	levelsStreamJSON[DEBUG] = []byte(`"` + levelKey + `":"` + Levels[DEBUG] + `","` + msgKey + `":`)
-	levelsStreamJSON[WARN] = []byte(`"` + levelKey + `":"` + Levels[WARN] + `","` + msgKey + `":`)
-	levelsStreamJSON[ERROR] = []byte(`"` + levelKey + `":"` + Levels[ERROR] + `","` + msgKey + `":`)
-	levelsStreamJSON[FATAL] = []byte(`"` + levelKey + `":"` + Levels[FATAL] + `","` + msgKey + `":`)
 }

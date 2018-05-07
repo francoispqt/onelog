@@ -128,8 +128,11 @@ func TestOnelogWithFields(t *testing.T) {
 			enc.AddStringKey("userID", "123456")
 			enc.AddStringKey("action", "login")
 			enc.AddStringKey("result", "success")
+			enc.AddObjectKey("user", Object(func(enc *Encoder) {
+				enc.AddStringKey("name", "somename")
+			}))
 		})
-		json := `{"level":"info","message":"message","userID":"123456","action":"login","result":"success"}` + "\n"
+		json := `{"level":"info","message":"message","userID":"123456","action":"login","result":"success","user":{"name":"somename"}}` + "\n"
 		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("fields-debug", func(t *testing.T) {

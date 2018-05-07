@@ -32,8 +32,8 @@ func LevelKey(s string) {
 // Encoder is an alias to gojay.Encoder
 type Encoder = gojay.Encoder
 
-// ObjectFunc is an alias to gojay.EncodeObjectFunc
-type ObjectFunc = gojay.EncodeObjectFunc
+// Object is an alias to gojay.EncodeObjectFunc
+type Object = gojay.EncodeObjectFunc
 
 // Logger is the type representing a logger.
 type Logger struct {

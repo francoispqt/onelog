@@ -127,7 +127,7 @@ logger := onelog.NewLogger(
 
 logger.DebugWithFields("i'm not sure what's going on", func(enc *onelog.Encoder) {
     enc.AddStringKey("userID", "123455")
-    enc.AddObjectKey("user", onelog.ObjectFunc(func(enc *onelog.Encoder){
+    enc.AddObjectKey("user", onelog.Object(func(enc *onelog.Encoder){
         enc.AddStringKey("name", "somename")
     }))
 }) // {"level":"debug","message":"i'm not sure what's going on","userID":"123456","user":{"name":"somename"}}

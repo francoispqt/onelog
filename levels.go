@@ -19,8 +19,6 @@ var ALL = uint8(INFO | DEBUG | WARN | ERROR | FATAL)
 // Levels is the mapping between int log levels and their string value
 var Levels = make([]string, 256)
 var levelsJSON = make([][]byte, 256)
-var levelsStreamJSON = make([][]byte, 256)
-
 var levelKey = "level"
 
 func init() {

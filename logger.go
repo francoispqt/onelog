@@ -52,8 +52,9 @@ func NewLogger(w io.Writer, levels uint8) *Logger {
 }
 
 // Hook sets a hook to run for all log entries to add generic fields
-func (l *Logger) Hook(h func(Entry)) {
+func (l *Logger) Hook(h func(Entry)) *Logger {
 	l.hook = h
+	return l
 }
 
 func (l *Logger) copy() *Logger {

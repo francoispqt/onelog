@@ -33,7 +33,7 @@ func main() {
     // second argument is the level, which is an integer
     logger := onelog.NewLogger(
         os.Stdout, 
-        onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
+        onelog.ALL, // shortcut for onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
     )
     logger.Info("hello world !") // {"level":"info","message":"hello world"}
 }
@@ -95,8 +95,8 @@ logger := onelog.NewLogger(
     os.Stdout, 
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
 )
-logger.Hook(func(enc *onelog.Encoder) {
-    enc.AddStringKey("time", time.Now().Format(time.RFC3339))
+logger.Hook(func(e onelog.Entry) {
+    e.String("time", time.Now().Format(time.RFC3339))
 })
 logger.Info("hello world !") // {"level":"info","message":"hello world","time":"2018-05-06T02:21:01+08:00"}
 ```
@@ -125,27 +125,27 @@ logger := onelog.NewLogger(
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
 )
 
-logger.DebugWithFields("i'm not sure what's going on", func(enc *onelog.Encoder) {
-    enc.AddStringKey("userID", "123455")
-    enc.AddObjectKey("user", onelog.Object(func(enc *onelog.Encoder){
-        enc.AddStringKey("name", "somename")
-    }))
+logger.DebugWithFields("i'm not sure what's going on", func(e onelog.Entry) {
+    e.String("userID", "123455")
+    e.Object("user", func() {
+        e.String("name", "somename")
+    })
 }) // {"level":"debug","message":"i'm not sure what's going on","userID":"123456","user":{"name":"somename"}}
 
-logger.Info("breaking news !", func(enc *onelog.Encoder) {
-    enc.AddStringKey("userID", "123455")
+logger.Info("breaking news !", func(e onelog.Entry) {
+    e.String("userID", "123455")
 }) // {"level":"info","message":"breaking news !","userID":"123456"}
 
-logger.Warn("beware !", func(enc *onelog.Encoder) {
-    enc.AddStringKey("userID", "123455")
+logger.Warn("beware !", func(e onelog.Entry) {
+    e.String("userID", "123455")
 }) // {"level":"warn","message":"beware !","userID":"123456"}
 
-logger.Error("my printer is on fire", func(enc *onelog.Encoder) {
-    enc.AddStringKey("userID", "123455")
+logger.Error("my printer is on fire", func(e onelog.Entry) {
+    e.String("userID", "123455")
 }) // {"level":"error","message":"my printer is on fire","userID":"123456"}
 
-logger.Fatal("oh my...", func(enc *onelog.Encoder) {
-    enc.AddStringKey("userID", "123455")
+logger.Fatal("oh my...", func(e onelog.Entry) {
+    e.String("userID", "123455")
 }) // {"level":"fatal","message":"oh my...","userID":"123456"}
 ```
 
@@ -160,16 +160,16 @@ Example:
 logger := onelog.NewLogger(
     os.Stdout, 
     onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
-).With(func(enc *onelog.Encoder) {
-    enc.AddStringKey("userID", "123456")
+).With(func(e onelog.Entry) {
+    e.String("userID", "123456")
 })
 
 logger.Info("user logged in") // {"level":"info","message":"user logged in","userID","123456"}
 
 logger.Debug("wtf?") // {"level":"debug","message":"wtf?","userID","123456"}
 
-logger.ErrorWithFields("Oops", func(enc *onelog.Encoder) {
-    enc.AddStringKey("error_code", "ROFL")
+logger.ErrorWithFields("Oops", func(e onelog.Entry) {
+    e.String("error_code", "ROFL")
 }) // {"level":"error","message":"oops","userID","123456","error_code":"ROFL"}
 ```
 

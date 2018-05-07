@@ -131,13 +131,14 @@ logger.DebugWithFields("i'm not sure what's going on", func(e onelog.Entry) {
     e.String("string", "foobar")
     e.Int("int", 12345)
     e.Int64("int64", 12345)
+    e.Float("float64", 0.15)
     e.Bool("bool", true)
     e.Error("err", errors.New("someError"))
     e.ObjectFunc("user", func() {
         e.String("name", "somename")
     })
 }) 
-// {"level":"debug","message":"i'm not sure what's going on","string":"foobar","int":12345,"int64":12345,"bool":true,"err":"someError","user":{"name":"somename"}}
+// {"level":"debug","message":"i'm not sure what's going on","string":"foobar","int":12345,"int64":12345,"float64":0.15,"bool":true,"err":"someError","user":{"name":"somename"}}
 
 logger.InfoWithFields("breaking news !", func(e onelog.Entry) {
     e.String("userID", "123455")

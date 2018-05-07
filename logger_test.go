@@ -157,6 +157,8 @@ func TestOnelogWithFields(t *testing.T) {
 			e.String("action", "login")
 			e.String("result", "success")
 			e.Int("count", 100)
+			e.Int64("int64", 100)
+			e.Float("float64", 0.15)
 			e.Bool("done", true)
 			e.Error("error", errors.New("some error"))
 			e.ObjectFunc("user", func() {
@@ -165,7 +167,10 @@ func TestOnelogWithFields(t *testing.T) {
 			e.Object("testObj", testObj)
 			e.Array("testArr", testArr)
 		})
-		json := `{"level":"info","message":"message","userID":"123456","action":"login","result":"success","count":100,"done":true,"error":"some error","user":{"name":"somename"},"testObj":{"foo":"bar"},"testArr":[{"foo":"bar"}]}` + "\n"
+		json := `{"level":"info","message":"message","userID":"123456",` +
+			`"action":"login","result":"success","count":100,"int64":100,"float64":0.15,"done":true,` +
+			`"error":"some error","user":{"name":"somename"},"testObj":{"foo":"bar"},` +
+			`"testArr":[{"foo":"bar"}]}` + "\n"
 		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("fields-debug", func(t *testing.T) {

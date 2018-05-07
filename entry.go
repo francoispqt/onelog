@@ -18,9 +18,14 @@ func (e Entry) Int(k string, v int) {
 	e.enc.AddIntKey(k, v)
 }
 
-// Int adds an int to the log entry.
+// Int64 adds an int64 to the log entry.
 func (e Entry) Int64(k string, v int64) {
 	e.enc.AddInt64Key(k, v)
+}
+
+// Float adds a float64 to the log entry.
+func (e Entry) Float(k string, v float64) {
+	e.enc.AddFloatKey(k, v)
 }
 
 // Bool adds a bool to the log entry.

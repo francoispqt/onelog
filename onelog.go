@@ -10,7 +10,7 @@
 // You can create your own logger:
 //	import "github.com/francoispqt/onelog
 //
-//	logger := onelog.New(os.Stdout, onelog.ALL)
+//	var logger = onelog.New(os.Stdout, onelog.ALL)
 //
 //	func main() {
 //		logger.Info("hello world !") // {"level":"info","message":"hello world !"}

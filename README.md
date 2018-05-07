@@ -2,6 +2,9 @@
 [![Build Status](https://travis-ci.org/francoispqt/onelog.svg?branch=master)](https://travis-ci.org/francoispqt/onelog)
 [![codecov](https://codecov.io/gh/francoispqt/onelog/branch/master/graph/badge.svg)](https://codecov.io/gh/francoispqt/onelog)
 [![Go Report Card](https://goreportcard.com/badge/github.com/francoispqt/onelog)](https://goreportcard.com/report/github.com/francoispqt/onelog)
+[![Go doc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square
+)](https://godoc.org/github.com/francoispqt/onelog)
+![MIT License](https://img.shields.io/badge/license-mit-blue.svg?style=flat-square)
 
 # Onelog
 Onelog is a dead simple but very efficient JSON logger. 

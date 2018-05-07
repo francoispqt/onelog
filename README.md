@@ -95,7 +95,7 @@ Example:
 ```go 
 logger := onelog.New(
     os.Stdout, 
-    onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
+    onelog.ALL,
 )
 logger.Hook(func(e onelog.Entry) {
     e.String("time", time.Now().Format(time.RFC3339))
@@ -110,7 +110,7 @@ Logging without extra fields is easy as:
 ```go 
 logger := onelog.New(
     os.Stdout, 
-    onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
+    onelog.ALL,
 )
 logger.Debug("i'm not sure what's going on") // {"level":"debug","message":"i'm not sure what's going on"}
 logger.Info("breaking news !") // {"level":"info","message":"breaking news !"}
@@ -124,7 +124,7 @@ Logging with extra fields is quite simple, specially if you have used gojay:
 ```go 
 logger := onelog.New(
     os.Stdout, 
-    onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
+    onelog.ALL,
 )
 
 logger.DebugWithFields("i'm not sure what's going on", func(e onelog.Entry) {
@@ -171,7 +171,7 @@ Example:
 ```go 
 logger := onelog.New(
     os.Stdout, 
-    onelog.DEBUG|onelog.INFO|onelog.WARN|onelog.ERROR|onelog.FATAL,
+    onelog.ALL,
 ).With(func(e onelog.Entry) {
     e.String("userID", "123456")
 })

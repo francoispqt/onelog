@@ -37,7 +37,7 @@ type Object = gojay.EncodeObjectFunc
 
 // Logger is the type representing a logger.
 type Logger struct {
-	hook   func(*Encoder)
+	hook   func(Entry)
 	w      io.Writer
 	levels uint8
 	ctx    []byte
@@ -52,7 +52,7 @@ func NewLogger(w io.Writer, levels uint8) *Logger {
 }
 
 // Hook sets a hook to run for all log entries to add generic fields
-func (l *Logger) Hook(h func(*Encoder)) {
+func (l *Logger) Hook(h func(Entry)) {
 	l.hook = h
 }
 
@@ -65,13 +65,15 @@ func (l *Logger) copy() *Logger {
 }
 
 // With copys the current Logger and adds it a context
-func (l *Logger) With(f func(*Encoder)) *Logger {
+func (l *Logger) With(f func(Entry)) *Logger {
 	nL := l.copy()
+	e := Entry{}
 	enc := gojay.BorrowEncoder(nL.w)
-	defer enc.Release()
+	e.enc = enc
 	enc.AppendByte(' ')
-	f(enc)
+	f(e)
 	nL.ctx = enc.Buf()[1:]
+	enc.Release()
 	return nL
 }
 
@@ -82,33 +84,36 @@ func (l *Logger) Info(msg string) {
 	if INFO&l.levels == 0 {
 		return
 	}
+	e := Entry{}
 	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(INFO, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // InfoWithFields logs an entry with INFO level and custom fields
-func (l *Logger) InfoWithFields(msg string, fields func(*Encoder)) {
+func (l *Logger) InfoWithFields(msg string, fields func(Entry)) {
 	// first find writer for level
 	// if none, stop
 	if INFO&l.levels == 0 {
 		return
 	}
-
+	e := Entry{}
 	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(INFO, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
-	fields(enc)
+	fields(e)
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // Debug logs an entry with DEBUG level
@@ -118,32 +123,36 @@ func (l *Logger) Debug(msg string) {
 	if DEBUG&l.levels == 0 {
 		return
 	}
+	e := Entry{}
 	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(DEBUG, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // DebugWithFields logs an entry with DEBUG level and custom fields
-func (l *Logger) DebugWithFields(msg string, fields func(*Encoder)) {
+func (l *Logger) DebugWithFields(msg string, fields func(Entry)) {
 	// check if level is in config
 	// if not, return
 	if DEBUG&l.levels == 0 {
 		return
 	}
+	e := Entry{}
 	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(DEBUG, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
-	fields(enc)
+	fields(e)
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // Warn logs an entry with WARN level
@@ -153,99 +162,104 @@ func (l *Logger) Warn(msg string) {
 	if WARN&l.levels == 0 {
 		return
 	}
+	e := Entry{}
 	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(WARN, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // WarnWithFields logs an entry with WARN level and custom fields
-func (l *Logger) WarnWithFields(msg string, fields func(*Encoder)) {
-	// check if level is in config
-	// if not, return
+func (l *Logger) WarnWithFields(msg string, fields func(Entry)) {
 	if WARN&l.levels == 0 {
 		return
 	}
+	e := Entry{}
 	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(WARN, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
-	fields(enc)
+	fields(e)
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // Error logs an entry with ERROR level
 func (l *Logger) Error(msg string) {
-	// check if level is in config
-	// if not, return
 	if ERROR&l.levels == 0 {
 		return
 	}
+	e := Entry{}
 	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(ERROR, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // ErrorWithFields logs an entry with ERROR level and custom fields
-func (l *Logger) ErrorWithFields(msg string, fields func(*Encoder)) {
-	// check if level is in config
-	// if not, return
+func (l *Logger) ErrorWithFields(msg string, fields func(Entry)) {
 	if ERROR&l.levels == 0 {
 		return
 	}
+	e := Entry{}
+	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(ERROR, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
-	fields(enc)
+	fields(e)
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // Fatal logs an entry with FATAL level
 func (l *Logger) Fatal(msg string) {
-	// check if level is in config
-	// if not, return
 	if FATAL&l.levels == 0 {
 		return
 	}
+	e := Entry{}
+	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(FATAL, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 // FatalWithFields logs an entry with FATAL level and custom fields
-func (l *Logger) FatalWithFields(msg string, fields func(*Encoder)) {
-	// check if level is in config
-	// if not, return
+func (l *Logger) FatalWithFields(msg string, fields func(Entry)) {
 	if FATAL&l.levels == 0 {
 		return
 	}
+	e := Entry{}
+	// then call format on formatter
 	enc := gojay.BorrowEncoder(l.w)
-	defer enc.Release()
+	e.enc = enc
 	l.beginLogEntry(FATAL, msg, enc)
 	if l.hook != nil {
-		l.hook(enc)
+		l.hook(e)
 	}
-	fields(enc)
+	fields(e)
 	l.closeLogEntry(enc)
+	enc.Release()
 }
 
 func (l *Logger) beginLogEntry(level int, msg string, enc *Encoder) {

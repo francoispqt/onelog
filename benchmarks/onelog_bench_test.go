@@ -13,15 +13,15 @@ func BenchmarkOnelog(b *testing.B) {
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
-				logger.InfoWithFields("message", func(enc *onelog.Encoder) {
-					enc.AddStringKey("test", "test")
-					enc.AddStringKey("test", "test")
-					enc.AddStringKey("test", "test")
-					enc.AddStringKey("test", "test")
-					enc.AddStringKey("test", "test")
-					enc.AddStringKey("test", "test")
-					enc.AddStringKey("test", "test")
-					enc.AddStringKey("test", "test")
+				logger.InfoWithFields("message", func(e onelog.Entry) {
+					e.String("test", "test")
+					e.String("test", "test")
+					e.String("test", "test")
+					e.String("test", "test")
+					e.String("test", "test")
+					e.String("test", "test")
+					e.String("test", "test")
+					e.String("test", "test")
 				})
 			}
 		})

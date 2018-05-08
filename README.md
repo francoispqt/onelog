@@ -231,7 +231,7 @@ A pull request will be submitted to Zap to integrate onelog in the benchmarks.
 | Zap         | 203   | 0            | 0         |
 | zerolog     | 154   | 0            | 0         |
 | logrus      | 1256  | 1554         | 24        |
-| onelog      | 317   | 0            | 0         |
+| onelog      | 286   | 0            | 0         |
 
 ## Logging basic message and accumulated context
 |             | ns/op | bytes/op     | allocs/op |
@@ -239,7 +239,7 @@ A pull request will be submitted to Zap to integrate onelog in the benchmarks.
 | Zap         | 276   | 0            | 0         |
 | zerolog     | 164   | 0            | 0         |
 | logrus      | 1256  | 1554         | 24        |
-| onelog      | 333   | 0            | 0         |
+| onelog      | 327   | 0            | 0         |
 
 ## Logging message with extra fields
 |             | ns/op | bytes/op     | allocs/op |

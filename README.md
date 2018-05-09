@@ -245,6 +245,6 @@ A pull request will be submitted to Zap to integrate onelog in the benchmarks.
 |             | ns/op | bytes/op     | allocs/op |
 |-------------|-------|--------------|-----------|
 | Zap         | 1764  | 770          | 5         |
-| zerolog     | 9869  | 8515         | 84        |
+| zerolog     | 1210  | 128          | 4         |
 | logrus      | 13211 | 13584        | 129       |
 | onelog      | 1047  | 128          | 4         |

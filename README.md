@@ -8,7 +8,7 @@
 
 # Onelog
 Onelog is a dead simple but very efficient JSON logger. 
-It is one of the fastest JSON logger out there and the fastest when logging extra fields. Also, it is one of the logger with the lowest allocation.
+It is the fastest JSON logger out there in all scenario. Also, it is one of the logger with the lowest allocation.
 
 It gives more control over log levels enabled by using bitwise operation for setting levels on a logger.
 
@@ -161,6 +161,23 @@ logger.FatalWithFields("oh my...", func(e onelog.Entry) {
 // {"level":"fatal","message":"oh my...","userID":"123456"}
 ```
 
+Alternatively, you can use the chain syntax: 
+```go
+logger.InfoWith("foo bar").
+    Int("testInt", 1).
+    Int64("testInt64", 2).
+    Float("testFloat", 1.15234).
+    String("testString", "string").
+    Bool("testBool", true).
+    ObjectFunc("testObj", func(e Entry) {
+        e.Int("testInt", 100)
+    }).
+    Object("testObj2", testObj). // implementation of gojay.MarshalerObject
+    Array("testArr", testArr). // implementation of gojay.MarshalerArray
+    Err("testErr", errors.New("my printer is on fire !")).
+    Write() // don't forget to call this method! 
+```
+
 ## Accumulate context
 You can create get a logger with some accumulated context that will be included on all logs created by this logger.
 
@@ -214,10 +231,10 @@ Benchmarks are here: https://github.com/francoispqt/zap/tree/onelog-bench/benchm
 ## Disabled Logging
 |             | ns/op | bytes/op     | allocs/op |
 |-------------|-------|--------------|-----------|
-| Zap         | 7.70  | 0            | 0         |
-| zerolog     | 2.67  | 0            | 0         |
+| Zap         | 8.73  | 0            | 0         |
+| zerolog     | 2.45  | 0            | 0         |
 | logrus      | 12.1  | 16           | 1         |
-| onelog      | 0.88  | 0            | 0         |
+| onelog      | 0.74  | 0            | 0         |
 
 ## Disabled with fields
 |             | ns/op | bytes/op     | allocs/op |
@@ -226,22 +243,23 @@ Benchmarks are here: https://github.com/francoispqt/zap/tree/onelog-bench/benchm
 | zerolog     | 68.7  | 128          | 4         |
 | logrus      | 721   | 1493         | 12        |
 | onelog      | 1.31  | 0            | 0         |
+| onelog-chain| 68.2  | 0            | 0         |
 
 ## Logging basic message
 |             | ns/op | bytes/op     | allocs/op |
 |-------------|-------|--------------|-----------|
-| Zap         | 203   | 0            | 0         |
-| zerolog     | 154   | 0            | 0         |
+| Zap         | 205   | 0            | 0         |
+| zerolog     | 135   | 0            | 0         |
 | logrus      | 1256  | 1554         | 24        |
-| onelog      | 317   | 0            | 0         |
+| onelog      | 84.8  | 0            | 0         |
 
 ## Logging basic message and accumulated context
 |             | ns/op | bytes/op     | allocs/op |
 |-------------|-------|--------------|-----------|
 | Zap         | 276   | 0            | 0         |
-| zerolog     | 164   | 0            | 0         |
+| zerolog     | 141   | 0            | 0         |
 | logrus      | 1256  | 1554         | 24        |
-| onelog      | 333   | 0            | 0         |
+| onelog      | 82.4  | 0            | 0         |
 
 ## Logging message with extra fields
 |             | ns/op | bytes/op     | allocs/op |
@@ -249,4 +267,5 @@ Benchmarks are here: https://github.com/francoispqt/zap/tree/onelog-bench/benchm
 | Zap         | 1764  | 770          | 5         |
 | zerolog     | 1210  | 128          | 4         |
 | logrus      | 13211 | 13584        | 129       |
-| onelog      | 1047  | 128          | 4         |
+| onelog      | 971   | 128          | 4         |
+| onelog-chain| 1030  | 128          | 4         |

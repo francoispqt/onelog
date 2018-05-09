@@ -160,7 +160,7 @@ func TestOnelogWithFields(t *testing.T) {
 			e.Int64("int64", 100)
 			e.Float("float64", 0.15)
 			e.Bool("done", true)
-			e.Error("error", errors.New("some error"))
+			e.Err("error", errors.New("some error"))
 			e.ObjectFunc("user", func() {
 				e.String("name", "somename")
 			})

@@ -20,8 +20,7 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
-ignored = ["github.com/stretchr/testify*"]
 
 [[constraint]]
   name = "github.com/francoispqt/gojay"
-  version = "0.10.6"
+  version = "0.10.7"

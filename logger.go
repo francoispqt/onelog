@@ -73,7 +73,9 @@ func (l *Logger) With(f func(Entry)) *Logger {
 	e.enc = enc
 	enc.AppendByte(' ')
 	f(e)
-	nL.ctx = enc.Buf()[1:]
+	b := enc.Buf()
+	nL.ctx = make([]byte, len(b[1:]))
+	copy(nL.ctx, b[1:])
 	enc.Release()
 	return nL
 }

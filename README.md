@@ -134,7 +134,7 @@ logger.DebugWithFields("i'm not sure what's going on", func(e onelog.Entry) {
     e.Float("float64", 0.15)
     e.Bool("bool", true)
     e.Error("err", errors.New("someError"))
-    e.ObjectFunc("user", func() {
+    e.ObjectFunc("user", func(e Entry) {
         e.String("name", "somename")
     })
 }) 

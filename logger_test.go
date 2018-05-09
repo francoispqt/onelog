@@ -161,7 +161,7 @@ func TestOnelogWithFields(t *testing.T) {
 			e.Float("float64", 0.15)
 			e.Bool("done", true)
 			e.Err("error", errors.New("some error"))
-			e.ObjectFunc("user", func() {
+			e.ObjectFunc("user", func(e Entry) {
 				e.String("name", "somename")
 			})
 			e.Object("testObj", testObj)

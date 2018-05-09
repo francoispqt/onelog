@@ -51,9 +51,9 @@ func (e Entry) Err(k string, v error) Entry {
 }
 
 // ObjectFunc adds an object to the log entry by calling a function.
-func (e Entry) ObjectFunc(k string, v func()) Entry {
+func (e Entry) ObjectFunc(k string, v func(Entry)) Entry {
 	e.enc.AddObjectKey(k, Object(func(enc *Encoder) {
-		v()
+		v(e)
 	}))
 	return e
 }

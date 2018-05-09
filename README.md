@@ -209,6 +209,8 @@ The benchmark data presented here is the one from Uber's benchmark suite where w
 
 A pull request will be submitted to Zap to integrate onelog in the benchmarks.
 
+Benchmarks are here: https://github.com/francoispqt/zap/tree/onelog-bench/benchmarks
+
 ## Disabled Logging
 |             | ns/op | bytes/op     | allocs/op |
 |-------------|-------|--------------|-----------|

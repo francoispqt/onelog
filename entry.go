@@ -14,14 +14,6 @@ type Entry struct {
 	l   *Logger
 }
 
-// Info logs an entry with INFO level.
-func (e Entry) Write() {
-	// first find writer for level
-	// if none, stop
-	e.l.closeEntry(e.enc)
-	e.enc.Release()
-}
-
 // String adds a string to the log entry.
 func (e Entry) String(k, v string) Entry {
 	e.enc.AddStringKey(k, v)

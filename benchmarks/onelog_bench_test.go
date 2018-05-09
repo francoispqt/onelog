@@ -14,7 +14,7 @@ func TestPrint(t *testing.T) {
 		Hook(func(e onelog.Entry) {
 			e.Int64("time", time.Now().Unix())
 		})
-	logger.InfoFields("message").
+	logger.InfoWith("message").
 		String("test", "test").
 		String("test", "test").
 		String("test", "test").
@@ -70,7 +70,7 @@ func BenchmarkOnelog(b *testing.B) {
 		b.ResetTimer()
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
-				logger.InfoFields("message").Write()
+				logger.InfoWith("message").Write()
 			}
 		})
 	})

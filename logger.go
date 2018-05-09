@@ -69,7 +69,7 @@ func (l *Logger) copy() *Logger {
 func (l *Logger) With(f func(Entry)) *Logger {
 	nL := l.copy()
 	e := Entry{}
-	enc := gojay.BorrowEncoder(nL.w)
+	enc := gojay.NewEncoder(nL.w)
 	e.enc = enc
 	enc.AppendByte(' ')
 	f(e)

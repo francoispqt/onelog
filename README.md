@@ -5,6 +5,7 @@
 [![Go doc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square
 )](https://godoc.org/github.com/francoispqt/onelog)
 ![MIT License](https://img.shields.io/badge/license-mit-blue.svg?style=flat-square)
+[![Sourcegraph](https://sourcegraph.com/github.com/francoispqt/onelog/-/badge.svg)](https://sourcegraph.com/github.com/francoispqt/onelog)
 
 # Onelog
 Onelog is a dead simple but very efficient JSON logger. 

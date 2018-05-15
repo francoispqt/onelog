@@ -7,9 +7,9 @@ const (
 	DEBUG = 0x2
 	// WARN is the numeric code for WARN log level
 	WARN = 0x4
-	// ERROR is the numeric code for WARN log level
+	// ERROR is the numeric code for ERROR log level
 	ERROR = 0x8
-	// FATAL is the numeric code for WARN log level
+	// FATAL is the numeric code for FATAL log level
 	FATAL = 0x10
 )
 

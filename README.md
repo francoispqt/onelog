@@ -8,7 +8,7 @@
 
 # Onelog
 Onelog is a dead simple but very efficient JSON logger. 
-It is the fastest JSON logger out there in all scenario. Also, it is one of the logger with the lowest allocation.
+It is one of the fastest JSON logger out there. Also, it is one of the logger with the lowest allocation.
 
 It gives more control over log levels enabled by using bitwise operation for setting levels on a logger.
 
@@ -222,9 +222,9 @@ Beware, these changes are global (affects all instances of the logger). Also, th
 
 # Benchmarks
 
-The benchmark data presented here is the one from Uber's benchmark suite where we added onelog. 
+For thorough benchmarks please see the results in the bench suite created by the author of zerolog here: https://github.com/rs/logbench 
 
-A pull request will be submitted to Zap to integrate onelog in the benchmarks.
+The benchmarks data presented below is the one from Uber's benchmark suite where we added onelog. 
 
 Benchmarks are here: https://github.com/francoispqt/zap/tree/onelog-bench/benchmarks
 

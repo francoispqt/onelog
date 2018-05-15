@@ -99,6 +99,7 @@ func (l *Logger) Info(msg string) {
 	enc.Release()
 }
 
+// InfoWith return an entry with INFO level.
 func (l *Logger) InfoWith(msg string) entry {
 	// first find writer for level
 	// if none, stop
@@ -160,6 +161,7 @@ func (l *Logger) Debug(msg string) {
 	enc.Release()
 }
 
+// DebugWith return entry with DEBUG level.
 func (l *Logger) DebugWith(msg string) entry {
 	// first find writer for level
 	// if none, stop
@@ -221,6 +223,7 @@ func (l *Logger) Warn(msg string) {
 	enc.Release()
 }
 
+// WarnWith returns entry with WARN level
 func (l *Logger) WarnWith(msg string) entry {
 	// first find writer for level
 	// if none, stop
@@ -278,6 +281,7 @@ func (l *Logger) Error(msg string) {
 	enc.Release()
 }
 
+// ErrorWith returns entry with ERROR level.
 func (l *Logger) ErrorWith(msg string) entry {
 	// first find writer for level
 	// if none, stop
@@ -335,6 +339,7 @@ func (l *Logger) Fatal(msg string) {
 	enc.Release()
 }
 
+// FatalWith returns entry with FATAL level.
 func (l *Logger) FatalWith(msg string) entry {
 	// first find writer for level
 	// if none, stop

@@ -1,6 +1,8 @@
 package onelog
 
-import "github.com/francoispqt/gojay"
+import (
+	"github.com/francoispqt/gojay"
+)
 
 type entry struct {
 	Entry
@@ -163,5 +165,14 @@ func (e entry) Array(k string, obj gojay.MarshalerArray) entry {
 		return e
 	}
 	e.enc.AddArrayKey(k, obj)
+	return e
+}
+
+// Any adds anything stuff to the log entry based on it's type
+func (e entry) Any(k string, obj interface{}) entry {
+	if e.disabled {
+		return e
+	}
+	e.enc.AddInterfaceKey(k, obj)
 	return e
 }

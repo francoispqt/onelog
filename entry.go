@@ -59,13 +59,13 @@ func (e Entry) ObjectFunc(k string, v func(Entry)) Entry {
 }
 
 // Object adds an object to the log entry by passing an implementation of gojay.MarshalerObject.
-func (e Entry) Object(k string, obj gojay.MarshalerObject) Entry {
+func (e Entry) Object(k string, obj gojay.MarshalerJSONObject) Entry {
 	e.enc.AddObjectKey(k, obj)
 	return e
 }
 
 // Array adds an object to the log entry by passing an implementation of gojay.MarshalerObject.
-func (e Entry) Array(k string, obj gojay.MarshalerArray) Entry {
+func (e Entry) Array(k string, obj gojay.MarshalerJSONArray) Entry {
 	e.enc.AddArrayKey(k, obj)
 	return e
 }
@@ -149,7 +149,7 @@ func (e entry) ObjectFunc(k string, v func(Entry)) entry {
 }
 
 // Object adds an object to the log entry by passing an implementation of gojay.MarshalerObject.
-func (e entry) Object(k string, obj gojay.MarshalerObject) entry {
+func (e entry) Object(k string, obj gojay.MarshalerJSONObject) entry {
 	if e.disabled {
 		return e
 	}
@@ -158,7 +158,7 @@ func (e entry) Object(k string, obj gojay.MarshalerObject) entry {
 }
 
 // Array adds an object to the log entry by passing an implementation of gojay.MarshalerObject.
-func (e entry) Array(k string, obj gojay.MarshalerArray) entry {
+func (e entry) Array(k string, obj gojay.MarshalerJSONArray) entry {
 	if e.disabled {
 		return e
 	}

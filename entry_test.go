@@ -130,6 +130,9 @@ func TestEntryFields(t *testing.T) {
 	json := `{"level":"%s","message":"hello","testInt":1,"testInt64":2,"testFloat":1.15234,` +
 		`"testString":"string","testBool":true,"testObj":{"testInt":100},` +
 		`"testObj2":{"foo":"bar"},"testArr":[{"foo":"bar"},{"foo":"bar"}],` +
+		`"testAnyString":"bar",` +
+		`"testAnyFloat":10.1,` +
+		`"testAnyInt":10,` +
 		`"testErr":"my printer is on fire !"}` + "\n"
 	testCases := []struct {
 		level       uint8
@@ -196,6 +199,9 @@ func TestEntryFields(t *testing.T) {
 				}).
 				Object("testObj2", testObj).
 				Array("testArr", testArr).
+				Any("testAnyString", "bar").
+				Any("testAnyFloat", 10.1).
+				Any("testAnyInt", 10).
 				Err("testErr", errors.New("my printer is on fire !")).
 				Write()
 			assert.Equal(t, fmt.Sprintf(json, testCase.levelString), string(w.b), "bytes written to the writer dont equal expected result")
@@ -216,6 +222,9 @@ func TestEntryFields(t *testing.T) {
 				}).
 				Object("testObj2", testObj).
 				Array("testArr", testArr).
+				Any("testAnyString", "bar").
+				Any("testAnyFloat", 10.0).
+				Any("testAnyInt", 10).
 				Err("testErr", errors.New("my printer is on fire !")).
 				Write()
 			assert.Equal(t, ``, string(w.b), "bytes written to the writer dont equal expected result")

@@ -172,8 +172,8 @@ logger.InfoWith("foo bar").
     ObjectFunc("testObj", func(e Entry) {
         e.Int("testInt", 100)
     }).
-    Object("testObj2", testObj). // implementation of gojay.MarshalerObject
-    Array("testArr", testArr). // implementation of gojay.MarshalerArray
+    Object("testObj2", testObj). // implementation of gojay.MarshalerJSONObject
+    Array("testArr", testArr). // implementation of gojay.MarshalerJSONArray
     Err("testErr", errors.New("my printer is on fire !")).
     Write() // don't forget to call this method! 
 ```

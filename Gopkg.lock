@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/francoispqt/gojay"
   packages = ["."]
-  revision = "d096375da20dd060cb672ea511e0c993d6e115a2"
-  version = "0.10.7"
+  revision = "efc4a69235597da330054429f6486da6eb48fb68"
+  version = "1.0.1"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -28,6 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3353472fe6ede2f95f525fa2763f0a9956093755536246aed7b05efac9116405"
+  inputs-digest = "4b0f23f0fc1575cb7d3e0b89e7871bf24c1083d3b5aa04311ccbea8f35ca89b9"
   solver-name = "gps-cdcl"
   solver-version = 1

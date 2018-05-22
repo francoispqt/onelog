@@ -31,7 +31,7 @@ type TestObj struct {
 	foo string
 }
 
-func (t *TestObj) MarshalObject(enc *gojay.Encoder) {
+func (t *TestObj) MarshalJSONObject(enc *gojay.Encoder) {
 	enc.AddStringKey("foo", t.foo)
 }
 
@@ -41,7 +41,7 @@ func (t *TestObj) IsNil() bool {
 
 type TestObjArr []*TestObj
 
-func (t TestObjArr) MarshalArray(enc *gojay.Encoder) {
+func (t TestObjArr) MarshalJSONArray(enc *gojay.Encoder) {
 	for _, o := range t {
 		enc.AddObject(o)
 	}

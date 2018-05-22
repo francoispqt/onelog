@@ -44,7 +44,7 @@ func (e Entry) Bool(k string, v bool) Entry {
 	return e
 }
 
-// Error adds an error to the log entry.
+// Err adds an error to the log entry.
 func (e Entry) Err(k string, v error) Entry {
 	e.enc.AddStringKey(k, v.Error())
 	return e

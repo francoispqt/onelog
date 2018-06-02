@@ -75,7 +75,7 @@ type ChainEntry struct {
 }
 
 // Info logs an entry with INFO level.
-func (e entry) Write() {
+func (e ChainEntry) Write() {
 	if e.disabled {
 		return
 	}

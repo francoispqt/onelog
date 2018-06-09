@@ -4,11 +4,6 @@ import (
 	"github.com/francoispqt/gojay"
 )
 
-type entry struct {
-	Entry
-	disabled bool
-}
-
 // Entry is the structure wrapping a pointer to the current encoder.
 // It provides easy API to work with GoJay's encoder.
 type Entry struct {
@@ -72,10 +67,15 @@ func (e Entry) Array(k string, obj gojay.MarshalerJSONArray) Entry {
 	return e
 }
 
-// entry it is used when chaining
+// ChainEntry is for chaining calls to the entry.
+
+type ChainEntry struct {
+	Entry
+	disabled bool
+}
 
 // Info logs an entry with INFO level.
-func (e entry) Write() {
+func (e ChainEntry) Write() {
 	if e.disabled {
 		return
 	}
@@ -86,7 +86,7 @@ func (e entry) Write() {
 }
 
 // String adds a string to the log entry.
-func (e entry) String(k, v string) entry {
+func (e ChainEntry) String(k, v string) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -95,7 +95,7 @@ func (e entry) String(k, v string) entry {
 }
 
 // Int adds an int to the log entry.
-func (e entry) Int(k string, v int) entry {
+func (e ChainEntry) Int(k string, v int) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -104,7 +104,7 @@ func (e entry) Int(k string, v int) entry {
 }
 
 // Int64 adds an int64 to the log entry.
-func (e entry) Int64(k string, v int64) entry {
+func (e ChainEntry) Int64(k string, v int64) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -113,7 +113,7 @@ func (e entry) Int64(k string, v int64) entry {
 }
 
 // Float adds a float64 to the log entry.
-func (e entry) Float(k string, v float64) entry {
+func (e ChainEntry) Float(k string, v float64) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -122,7 +122,7 @@ func (e entry) Float(k string, v float64) entry {
 }
 
 // Bool adds a bool to the log entry.
-func (e entry) Bool(k string, v bool) entry {
+func (e ChainEntry) Bool(k string, v bool) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -131,7 +131,7 @@ func (e entry) Bool(k string, v bool) entry {
 }
 
 // Error adds an error to the log entry.
-func (e entry) Err(k string, v error) entry {
+func (e ChainEntry) Err(k string, v error) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -140,7 +140,7 @@ func (e entry) Err(k string, v error) entry {
 }
 
 // ObjectFunc adds an object to the log entry by calling a function.
-func (e entry) ObjectFunc(k string, v func(Entry)) entry {
+func (e ChainEntry) ObjectFunc(k string, v func(Entry)) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -151,7 +151,7 @@ func (e entry) ObjectFunc(k string, v func(Entry)) entry {
 }
 
 // Object adds an object to the log entry by passing an implementation of gojay.MarshalerJSONObject.
-func (e entry) Object(k string, obj gojay.MarshalerJSONObject) entry {
+func (e ChainEntry) Object(k string, obj gojay.MarshalerJSONObject) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -160,7 +160,7 @@ func (e entry) Object(k string, obj gojay.MarshalerJSONObject) entry {
 }
 
 // Array adds an object to the log entry by passing an implementation of gojay.MarshalerJSONObject.
-func (e entry) Array(k string, obj gojay.MarshalerJSONArray) entry {
+func (e ChainEntry) Array(k string, obj gojay.MarshalerJSONArray) ChainEntry {
 	if e.disabled {
 		return e
 	}
@@ -169,7 +169,7 @@ func (e entry) Array(k string, obj gojay.MarshalerJSONArray) entry {
 }
 
 // Any adds anything stuff to the log entry based on it's type
-func (e entry) Any(k string, obj interface{}) entry {
+func (e ChainEntry) Any(k string, obj interface{}) ChainEntry {
 	if e.disabled {
 		return e
 	}

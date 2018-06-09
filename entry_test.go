@@ -138,13 +138,13 @@ func TestEntryFields(t *testing.T) {
 		level       uint8
 		disabled    uint8
 		levelString string
-		entryFunc   func(*Logger) entry
+		entryFunc   func(*Logger) ChainEntry
 	}{
 		{
 			level:       INFO,
 			disabled:    DEBUG,
 			levelString: "info",
-			entryFunc: func(l *Logger) entry {
+			entryFunc: func(l *Logger) ChainEntry {
 				return l.InfoWith("hello")
 			},
 		},
@@ -152,7 +152,7 @@ func TestEntryFields(t *testing.T) {
 			level:       DEBUG,
 			disabled:    INFO,
 			levelString: "debug",
-			entryFunc: func(l *Logger) entry {
+			entryFunc: func(l *Logger) ChainEntry {
 				return l.DebugWith("hello")
 			},
 		},
@@ -160,7 +160,7 @@ func TestEntryFields(t *testing.T) {
 			level:       WARN,
 			disabled:    ERROR,
 			levelString: "warn",
-			entryFunc: func(l *Logger) entry {
+			entryFunc: func(l *Logger) ChainEntry {
 				return l.WarnWith("hello")
 			},
 		},
@@ -168,7 +168,7 @@ func TestEntryFields(t *testing.T) {
 			level:       ERROR,
 			disabled:    WARN,
 			levelString: "error",
-			entryFunc: func(l *Logger) entry {
+			entryFunc: func(l *Logger) ChainEntry {
 				return l.ErrorWith("hello")
 			},
 		},
@@ -176,7 +176,7 @@ func TestEntryFields(t *testing.T) {
 			level:       FATAL,
 			disabled:    ERROR,
 			levelString: "fatal",
-			entryFunc: func(l *Logger) entry {
+			entryFunc: func(l *Logger) ChainEntry {
 				return l.FatalWith("hello")
 			},
 		},

@@ -7,8 +7,9 @@ import (
 // Entry is the structure wrapping a pointer to the current encoder.
 // It provides easy API to work with GoJay's encoder.
 type Entry struct {
-	enc *Encoder
-	l   *Logger
+	enc   *Encoder
+	l     *Logger
+	Level uint8
 }
 
 // String adds a string to the log entry.

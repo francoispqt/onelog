@@ -2,15 +2,15 @@ package onelog
 
 const (
 	// INFO is the numeric code for INFO log level
-	INFO = 0x1
+	INFO = uint8(0x1)
 	// DEBUG is the numeric code for DEBUG log level
-	DEBUG = 0x2
+	DEBUG = uint8(0x2)
 	// WARN is the numeric code for WARN log level
-	WARN = 0x4
+	WARN = uint8(0x4)
 	// ERROR is the numeric code for ERROR log level
-	ERROR = 0x8
+	ERROR = uint8(0x8)
 	// FATAL is the numeric code for FATAL log level
-	FATAL = 0x10
+	FATAL = uint8(0x10)
 )
 
 // ALL is a shortcut to INFO | DEBUG | WARN | ERROR | FATAL to enable all logging levels

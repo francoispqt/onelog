@@ -12,7 +12,7 @@ var logClose = []byte("}\n")
 var msgKey = "message"
 
 // LevelText personalises the text for a specific level.
-func LevelText(level int, txt string) {
+func LevelText(level uint8, txt string) {
 	Levels[level] = txt
 	genLevelSlices()
 }
@@ -393,7 +393,7 @@ func (l *Logger) FatalWithFields(msg string, fields func(Entry)) {
 	enc.Release()
 }
 
-func (l *Logger) beginEntry(level int, msg string, enc *Encoder) {
+func (l *Logger) beginEntry(level uint8, msg string, enc *Encoder) {
 	enc.AppendBytes(levelsJSON[level])
 	enc.AppendString(msg)
 	if l.ctx != nil {

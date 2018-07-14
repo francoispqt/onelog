@@ -44,7 +44,9 @@ func (e Entry) Bool(k string, v bool) Entry {
 
 // Err adds an error to the log entry.
 func (e Entry) Err(k string, v error) Entry {
-	e.enc.StringKey(k, v.Error())
+	if v != nil {
+		e.enc.StringKey(k, v.Error())
+	}
 	return e
 }
 
@@ -136,7 +138,9 @@ func (e ChainEntry) Err(k string, v error) ChainEntry {
 	if e.disabled {
 		return e
 	}
-	e.enc.StringKey(k, v.Error())
+	if v != nil {
+		e.enc.StringKey(k, v.Error())
+	}
 	return e
 }
 

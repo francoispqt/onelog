@@ -133,7 +133,7 @@ func TestEntryFields(t *testing.T) {
 		`"testAnyString":"bar",` +
 		`"testAnyFloat":10.1,` +
 		`"testAnyInt":10,` +
-		`"testErr":"my printer is on fire !"}` + "\n"
+		`"testErr":"my printer is on fire"}` + "\n"
 	testCases := []struct {
 		level       uint8
 		disabled    uint8
@@ -202,7 +202,7 @@ func TestEntryFields(t *testing.T) {
 				Any("testAnyString", "bar").
 				Any("testAnyFloat", 10.1).
 				Any("testAnyInt", 10).
-				Err("testErr", errors.New("my printer is on fire !")).
+				Err("testErr", errors.New("my printer is on fire")).
 				Write()
 			assert.Equal(t, fmt.Sprintf(json, testCase.levelString), string(w.b), "bytes written to the writer dont equal expected result")
 		})
@@ -225,7 +225,7 @@ func TestEntryFields(t *testing.T) {
 				Any("testAnyString", "bar").
 				Any("testAnyFloat", 10.0).
 				Any("testAnyInt", 10).
-				Err("testErr", errors.New("my printer is on fire !")).
+				Err("testErr", errors.New("my printer is on fire")).
 				Write()
 			assert.Equal(t, ``, string(w.b), "bytes written to the writer dont equal expected result")
 

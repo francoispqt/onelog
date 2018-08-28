@@ -519,3 +519,10 @@ func TestOnelogContext(t *testing.T) {
 		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 }
+
+func TestNilOutput(t *testing.T) {
+	logger := New(nil, 0)
+	assert.NotNil(t, logger.w, "Logger output should not be nil")
+	logger.Error("Test output")
+	t.Log("Successfully write to ioutil.Discard output")
+}

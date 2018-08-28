@@ -2,6 +2,7 @@ package onelog
 
 import (
 	"io"
+	"io/ioutil"
 	"runtime"
 	"strconv"
 
@@ -45,6 +46,10 @@ type Logger struct {
 
 // New returns a fresh onelog Logger with default values.
 func New(w io.Writer, levels uint8) *Logger {
+	if w == nil {
+		w = ioutil.Discard
+	}
+
 	return &Logger{
 		levels: levels,
 		w:      w,

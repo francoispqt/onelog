@@ -66,6 +66,7 @@ func (l *Logger) copy() *Logger {
 	nL := Logger{
 		levels: l.levels,
 		w:      l.w,
+		hook:   l.hook,
 	}
 	return &nL
 }

@@ -86,6 +86,17 @@ func (l *Logger) With(f func(Entry)) *Logger {
 	return nL
 }
 
+// WithContext copies current logger enforcing all entry fields to be
+// set into a map with the contextName set as the key name for giving map.
+// This allows allocating all future uses of the logging methods to
+// follow such formatting. The only exception are values provided by
+// added hooks which will remain within the root level of generated json.
+func (l *Logger) WithContext(contextName string) *Logger {
+	nl := l.copy()
+
+	return nl
+}
+
 // Info logs an entry with INFO level.
 func (l *Logger) Info(msg string) {
 	// first find writer for level

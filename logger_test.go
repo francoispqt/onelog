@@ -521,10 +521,18 @@ func TestOnelogContext(t *testing.T) {
 }
 
 func TestNilOutput(t *testing.T) {
-	logger := New(nil, 0)
-	assert.NotNil(t, logger.w, "Logger output should not be nil")
-	logger.Error("Test output")
-	t.Log("Successfully write to ioutil.Discard output")
+	t.Run("nil-logger", func(t *testing.T) {
+		logger := New(nil, 0)
+		assert.NotNil(t, logger.w, "Logger output should not be nil")
+		logger.Error("Test output")
+		t.Log("Successfully write to ioutil.Discard output")
+	})
+	t.Run("nil-context-logger", func(t *testing.T) {
+		logger := NewContext(nil, 0, "params")
+		assert.NotNil(t, logger.w, "Logger output should not be nil")
+		logger.Error("Test output")
+		t.Log("Successfully write to ioutil.Discard output")
+	})
 }
 
 func TestOnelogHooksWithAndContext(t *testing.T) {

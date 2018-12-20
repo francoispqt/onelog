@@ -9,10 +9,12 @@ import (
 	"github.com/francoispqt/gojay"
 )
 
-var logOpen = []byte("{")
-var logClose = []byte("}\n")
-var logCloseOnly = []byte("}")
-var msgKey = "message"
+var (
+	logOpen      = []byte("{")
+	logClose     = []byte("}\n")
+	logCloseOnly = []byte("}")
+	msgKey       = "message"
+)
 
 // LevelText personalises the text for a specific level.
 func LevelText(level uint8, txt string) {
@@ -92,7 +94,8 @@ func (l *Logger) copy(ctxName string) *Logger {
 // With copies the current Logger and adds it a given context by running func f.
 func (l *Logger) With(f func(Entry)) *Logger {
 	nL := l.copy(l.contextName)
-	enc := gojay.NewEncoder(nL.w)
+
+	enc := gojay.BorrowEncoder(nL.w)
 
 	e := Entry{}
 	e.enc = enc
@@ -102,7 +105,9 @@ func (l *Logger) With(f func(Entry)) *Logger {
 	b := enc.Buf()
 	nL.ctx = make([]byte, len(b[1:]))
 	copy(nL.ctx, b[1:])
+
 	enc.Release()
+
 	return nL
 }
 
@@ -124,7 +129,7 @@ func (l *Logger) Info(msg string) {
 		return
 	}
 	e := Entry{Level: INFO, Message: msg}
-	// then call format on formatter
+
 	enc := gojay.BorrowEncoder(l.w)
 	e.enc = enc
 
@@ -139,6 +144,7 @@ func (l *Logger) Info(msg string) {
 
 	l.closeEntry(enc)
 	l.finalizeIfContext(e)
+
 	enc.Release()
 }
 
@@ -158,18 +164,17 @@ func (l *Logger) InfoWith(msg string) ChainEntry {
 		return e
 	}
 
-	enc := gojay.BorrowEncoder(l.w)
-	e.Entry.enc = enc
+	e.Entry.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.Entry.enc)
 		l.runHook(e.Entry)
 		return e
 	}
 
-	l.openEntry(enc)
+	l.openEntry(e.Entry.enc)
 	return e
 }
 
@@ -181,23 +186,23 @@ func (l *Logger) InfoWithFields(msg string, fields func(Entry)) {
 		return
 	}
 	e := Entry{Level: INFO, Message: msg}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+
+	e.enc.Release()
 }
 
 // Debug logs an entry with DEBUG level.
@@ -208,22 +213,22 @@ func (l *Logger) Debug(msg string) {
 		return
 	}
 	e := Entry{Level: DEBUG, Message: msg}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+
+	e.enc.Release()
 }
 
 // DebugWith return ChainEntry with DEBUG level.
@@ -241,19 +246,18 @@ func (l *Logger) DebugWith(msg string) ChainEntry {
 	if e.disabled {
 		return e
 	}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.Entry.enc = enc
+
+	e.Entry.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.Entry.enc)
 		l.runHook(e.Entry)
 		return e
 	}
 
-	l.openEntry(enc)
+	l.openEntry(e.Entry.enc)
 	return e
 }
 
@@ -265,23 +269,23 @@ func (l *Logger) DebugWithFields(msg string, fields func(Entry)) {
 		return
 	}
 	e := Entry{Level: DEBUG, Message: msg}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+
+	e.enc.Release()
 }
 
 // Warn logs an entry with WARN level.
@@ -292,22 +296,22 @@ func (l *Logger) Warn(msg string) {
 		return
 	}
 	e := Entry{Level: WARN, Message: msg}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+
+	e.enc.Release()
 }
 
 // WarnWith returns a ChainEntry with WARN level
@@ -325,19 +329,18 @@ func (l *Logger) WarnWith(msg string) ChainEntry {
 	if e.disabled {
 		return e
 	}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.Entry.enc = enc
+
+	e.Entry.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.Entry.enc)
 		l.runHook(e.Entry)
 		return e
 	}
 
-	l.openEntry(enc)
+	l.openEntry(e.Entry.enc)
 	return e
 }
 
@@ -350,23 +353,23 @@ func (l *Logger) WarnWithFields(msg string, fields func(Entry)) {
 		Level:   WARN,
 		Message: msg,
 	}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+
+	e.enc.Release()
 }
 
 // Error logs an entry with ERROR level
@@ -378,22 +381,22 @@ func (l *Logger) Error(msg string) {
 		Level:   ERROR,
 		Message: msg,
 	}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+
+	e.enc.Release()
 }
 
 // ErrorWith returns a ChainEntry with ERROR level.
@@ -411,19 +414,18 @@ func (l *Logger) ErrorWith(msg string) ChainEntry {
 	if e.disabled {
 		return e
 	}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.Entry.enc = enc
+
+	e.Entry.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.Entry.enc)
 		l.runHook(e.Entry)
 		return e
 	}
 
-	l.openEntry(enc)
+	l.openEntry(e.Entry.enc)
 	return e
 }
 
@@ -436,23 +438,22 @@ func (l *Logger) ErrorWithFields(msg string, fields func(Entry)) {
 		Level:   ERROR,
 		Message: msg,
 	}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+	e.enc.Release()
 }
 
 // Fatal logs an entry with FATAL level.
@@ -464,22 +465,22 @@ func (l *Logger) Fatal(msg string) {
 		Level:   FATAL,
 		Message: msg,
 	}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+
+	e.enc.Release()
 }
 
 // FatalWith returns a ChainEntry with FATAL level.
@@ -497,19 +498,18 @@ func (l *Logger) FatalWith(msg string) ChainEntry {
 	if e.disabled {
 		return e
 	}
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.Entry.enc = enc
+
+	e.Entry.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.Entry.enc)
 		l.runHook(e.Entry)
 		return e
 	}
 
-	l.openEntry(enc)
+	l.openEntry(e.Entry.enc)
 	return e
 }
 
@@ -524,23 +524,22 @@ func (l *Logger) FatalWithFields(msg string, fields func(Entry)) {
 		Message: msg,
 	}
 
-	// then call format on formatter
-	enc := gojay.BorrowEncoder(l.w)
-	e.enc = enc
+	e.enc = gojay.BorrowEncoder(l.w)
 
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e.enc)
 		l.runHook(e)
 	} else {
-		l.openEntry(enc)
+		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(enc)
+	l.closeEntry(e.enc)
 	l.finalizeIfContext(e)
-	enc.Release()
+
+	e.enc.Release()
 }
 
 func (l *Logger) openEntry(enc *Encoder) {

@@ -95,3 +95,11 @@ func BenchmarkOnelog(b *testing.B) {
 		})
 	})
 }
+
+func BenchmarkOneLogTrace(b *testing.B) {
+	logger := onelog.New(ioutil.Discard, onelog.ALL)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		logger.Info("message")
+	}
+}

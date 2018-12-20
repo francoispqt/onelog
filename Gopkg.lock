@@ -10,12 +10,12 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:aac23e3b1fe66ce2eb50c3e24434e653fb837df908ba5785853782d0bec1ec9b"
+  digest = "1:86c70c372aeec190cdccda2156f61e40c18c721f988b4a05fd2b1a1101b36580"
   name = "github.com/francoispqt/gojay"
   packages = ["."]
   pruneopts = ""
-  revision = "73600a98c556ff2da24a90f556188b676eaaff31"
-  version = "1.2.6"
+  revision = "f2cc13a668caf474b5d5806c7f1adbbe4ce28524"
+  version = "1.2.7"
 
 [[projects]]
   digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"

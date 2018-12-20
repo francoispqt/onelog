@@ -145,7 +145,6 @@ logger.InfoWithFields("breaking news !", func(e onelog.Entry) {
 You can always reset the context by calling `WithContext("")` to create a no-context logger from a 
 context logger parent.
 
-```
 
 ## Logging
 

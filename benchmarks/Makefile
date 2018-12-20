@@ -4,12 +4,12 @@ benchtrace:
 
 .PHONY: benchonelog
 benchonelog:
-	go test -benchmem -run=^BenchmarkScrib -bench=^BenchmarkScrib -benchtime=30ms
+	go test -benchmem -run=^BenchmarkOnelog -bench=^BenchmarkOnelog -benchtime=30ms
 
 .PHONY: benchonelograce
 benchonelograce:
-	go test -race -benchmem -run=^BenchmarkScrib -bench=^BenchmarkScrib -benchtime=30ms
+	go test -race -benchmem -run=^BenchmarkOnelog -bench=^BenchmarkOnelog -benchtime=30ms
 
 .PHONY: benchonelogcpu
 benchonelogcpu:
-	go test -benchmem -run=^BenchmarkGoJay -bench=^BenchmarkScrib -benchtime=30ms -cpuprofile cpu.out
+	go test -benchmem -run=^BenchmarkOnelog -bench=^BenchmarkOnelog -benchtime=30ms -cpuprofile cpu.out

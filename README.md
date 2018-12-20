@@ -41,6 +41,7 @@ func main() {
 }
 ```
 
+
 ## Levels
 
 Levels are ints mapped to a string. The logger will check if level is enabled with an efficient bitwise &(AND), if disabled, it returns right away which makes onelog the fastest when running disabled logging with 0 allocs and less than 1ns/op. [See benchmarks](#benchmarks)
@@ -101,6 +102,49 @@ logger.Hook(func(e onelog.Entry) {
     e.String("time", time.Now().Format(time.RFC3339))
 })
 logger.Info("hello world !") // {"level":"info","message":"hello world","time":"2018-05-06T02:21:01+08:00"}
+```
+
+## Context
+
+Context allows enforcing a grouping format where all logs fields key-values pairs from all logging methods (With, Info, Debug, InfoWith, InfoWithEntry, ...etc) except
+for values from using `logger.Hook`, will be enclosed in giving context name provided as it's key. For example using a context key "params" as below
+
+
+```go
+logger := onelog.NewContext(
+    os.Stdout, 
+    onelog.INFO|onelog.WARN,
+    "params"
+)
+
+logger.InfoWithFields("breaking news !", func(e onelog.Entry) {
+    e.String("userID", "123455")
+}) 
+
+// {"level":"info","message":"breaking news !", "params":{"userID":"123456"}}
+```
+
+This principle also applies when inheriting from a previous created logger as below
+
+```go
+parentLogger := onelog.New(
+    os.Stdout, 
+    onelog.INFO|onelog.WARN,
+)
+
+
+logger := parentLogger.WithContext("params")
+logger.InfoWithFields("breaking news !", func(e onelog.Entry) {
+    e.String("userID", "123455")
+}) 
+
+// {"level":"info","message":"breaking news !", "params":{"userID":"123456"}}
+```
+
+
+You can always reset the context by calling `WithContext("")` to create a no-context logger from a 
+context logger parent.
+
 ```
 
 ## Logging

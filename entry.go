@@ -7,9 +7,10 @@ import (
 // Entry is the structure wrapping a pointer to the current encoder.
 // It provides easy API to work with GoJay's encoder.
 type Entry struct {
-	enc   *Encoder
-	l     *Logger
-	Level uint8
+	enc     *Encoder
+	l       *Logger
+	Level   uint8
+	Message string
 }
 
 // String adds a string to the log entry.
@@ -84,6 +85,7 @@ func (e ChainEntry) Write() {
 	// first find writer for level
 	// if none, stop
 	e.Entry.l.closeEntry(e.enc)
+	e.Entry.l.finalizeIfContext(e.Entry)
 	e.Entry.enc.Release()
 }
 

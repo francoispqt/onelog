@@ -571,6 +571,8 @@ func (l *Logger) finalizeIfContext(entry Entry) {
 
 	// create a new encoder for the final output.
 	entryEnc := gojay.BorrowEncoder(l.w)
+	defer entryEnc.Release()
+
 	entry.enc = entryEnc
 
 	// create dummy entry for applying hooks.

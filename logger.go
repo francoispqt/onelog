@@ -45,7 +45,7 @@ type Logger struct {
 	hook        func(Entry)
 	w           io.Writer
 	levels      uint8
-	ctx         []byte
+	ctx         []func(Entry)
 	contextName string
 }
 
@@ -82,32 +82,29 @@ func (l *Logger) Hook(h func(Entry)) *Logger {
 }
 
 func (l *Logger) copy(ctxName string) *Logger {
-	nL := Logger{
+	nL := &Logger{
 		levels:      l.levels,
 		w:           l.w,
 		hook:        l.hook,
 		contextName: ctxName,
 	}
-	return &nL
+	if len(l.ctx) > 0 {
+		var ctx = make([]func(e Entry), len(l.ctx))
+		copy(ctx, l.ctx)
+		nL.ctx = ctx
+	}
+	return nL
 }
 
 // With copies the current Logger and adds it a given context by running func f.
 func (l *Logger) With(f func(Entry)) *Logger {
 	nL := l.copy(l.contextName)
 
-	enc := gojay.BorrowEncoder(nL.w)
+	if len(nL.ctx) == 0 {
+		nL.ctx = make([]func(Entry), 0, 1)
+	}
 
-	e := Entry{}
-	e.enc = enc
-	enc.AppendByte(' ')
-	f(e)
-
-	b := enc.Buf()
-	nL.ctx = make([]byte, len(b[1:]))
-	copy(nL.ctx, b[1:])
-
-	enc.Release()
-
+	nL.ctx = append(nL.ctx, f)
 	return nL
 }
 
@@ -136,13 +133,13 @@ func (l *Logger) Info(msg string) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(enc)
 	}
 
-	l.closeEntry(enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	enc.Release()
@@ -169,7 +166,7 @@ func (l *Logger) InfoWith(msg string) ChainEntry {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.Entry.enc)
+		l.beginEntry(e.Level, msg, e.Entry)
 		l.runHook(e.Entry)
 		return e
 	}
@@ -192,14 +189,14 @@ func (l *Logger) InfoWithFields(msg string, fields func(Entry)) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
@@ -219,13 +216,13 @@ func (l *Logger) Debug(msg string) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
@@ -252,7 +249,7 @@ func (l *Logger) DebugWith(msg string) ChainEntry {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.Entry.enc)
+		l.beginEntry(e.Level, msg, e.Entry)
 		l.runHook(e.Entry)
 		return e
 	}
@@ -275,14 +272,14 @@ func (l *Logger) DebugWithFields(msg string, fields func(Entry)) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
@@ -302,13 +299,13 @@ func (l *Logger) Warn(msg string) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
@@ -335,7 +332,7 @@ func (l *Logger) WarnWith(msg string) ChainEntry {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.Entry.enc)
+		l.beginEntry(e.Level, msg, e.Entry)
 		l.runHook(e.Entry)
 		return e
 	}
@@ -359,14 +356,14 @@ func (l *Logger) WarnWithFields(msg string, fields func(Entry)) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
@@ -387,13 +384,13 @@ func (l *Logger) Error(msg string) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
@@ -420,7 +417,7 @@ func (l *Logger) ErrorWith(msg string) ChainEntry {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.Entry.enc)
+		l.beginEntry(e.Level, msg, e.Entry)
 		l.runHook(e.Entry)
 		return e
 	}
@@ -444,14 +441,14 @@ func (l *Logger) ErrorWithFields(msg string, fields func(Entry)) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 	e.enc.Release()
 }
@@ -471,13 +468,13 @@ func (l *Logger) Fatal(msg string) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
@@ -504,7 +501,7 @@ func (l *Logger) FatalWith(msg string) ChainEntry {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.Entry.enc)
+		l.beginEntry(e.Level, msg, e.Entry)
 		l.runHook(e.Entry)
 		return e
 	}
@@ -529,14 +526,14 @@ func (l *Logger) FatalWithFields(msg string, fields func(Entry)) {
 	// if we do not require a context then we
 	// format with formatter and return.
 	if l.contextName == "" {
-		l.beginEntry(e.Level, msg, e.enc)
+		l.beginEntry(e.Level, msg, e)
 		l.runHook(e)
 	} else {
 		l.openEntry(e.enc)
 	}
 
 	fields(e)
-	l.closeEntry(e.enc)
+	l.closeEntry(e)
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
@@ -546,12 +543,14 @@ func (l *Logger) openEntry(enc *Encoder) {
 	enc.AppendBytes(logOpen)
 }
 
-func (l *Logger) beginEntry(level uint8, msg string, enc *Encoder) {
-	enc.AppendBytes(levelsJSON[level])
-	enc.AppendString(msg)
+func (l *Logger) beginEntry(level uint8, msg string, e Entry) {
+	e.enc.AppendBytes(levelsJSON[level])
+	e.enc.AppendString(msg)
 
 	if l.ctx != nil && l.contextName == "" {
-		enc.AppendBytes(l.ctx)
+		for _, c := range l.ctx {
+			c(e)
+		}
 	}
 }
 
@@ -576,7 +575,7 @@ func (l *Logger) finalizeIfContext(entry Entry) {
 	entry.enc = entryEnc
 
 	// create dummy entry for applying hooks.
-	l.beginEntry(entry.Level, entry.Message, entryEnc)
+	l.beginEntry(entry.Level, entry.Message, entry)
 	l.runHook(entry)
 
 	// Add entry's encoded data into new encoder.
@@ -591,18 +590,20 @@ func (l *Logger) finalizeIfContext(entry Entry) {
 	entryEnc.Write()
 }
 
-func (l *Logger) closeEntry(enc *Encoder) {
+func (l *Logger) closeEntry(e Entry) {
 	if l.contextName == "" {
-		enc.AppendBytes(logClose)
+		e.enc.AppendBytes(logClose)
 	} else {
 		if l.ctx != nil {
-			enc.AppendBytes(l.ctx)
+			for _, c := range l.ctx {
+				c(e)
+			}
 		}
-		enc.AppendBytes(logCloseOnly)
+		e.enc.AppendBytes(logCloseOnly)
 	}
 
 	if l.contextName == "" {
-		enc.Write()
+		e.enc.Write()
 	}
 }
 

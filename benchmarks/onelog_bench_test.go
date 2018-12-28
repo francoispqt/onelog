@@ -94,12 +94,17 @@ func BenchmarkOnelog(b *testing.B) {
 			}
 		})
 	})
-}
 
-func BenchmarkOneLogTrace(b *testing.B) {
-	logger := onelog.New(ioutil.Discard, onelog.ALL)
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		logger.Info("message")
-	}
+	b.Run("accumulated context", func(b *testing.B) {
+		logger := onelog.New(ioutil.Discard, onelog.ALL).
+			With(func(e onelog.Entry) {
+				e.Int("int", 1)
+			})
+		b.ResetTimer()
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				logger.Info("message")
+			}
+		})
+	})
 }

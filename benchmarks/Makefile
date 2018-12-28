@@ -4,7 +4,7 @@ benchtrace:
 
 .PHONY: benchonelog
 benchonelog:
-	go test -benchmem -run=^BenchmarkOnelog -bench=^BenchmarkOnelog -benchtime=30ms
+	go test -benchmem -run=^BenchmarkOnelog.* -bench=^BenchmarkOnelog.* -benchtime=30ms
 
 .PHONY: benchonelograce
 benchonelograce:

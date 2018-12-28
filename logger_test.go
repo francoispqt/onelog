@@ -1092,4 +1092,14 @@ func TestOnelogFieldsChainAndContext(t *testing.T) {
 		json := `{"level":"fatal","message":"message","params":{"userID":"123456","action":"login","result":"success","int64":120,"thunder_frequency":1000}}` + "\n"
 		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
+
+	t.Run("multi-augmented-logger", func(t *testing.T) {
+		w := newWriter()
+		parent := NewContext(w, DEBUG|INFO|WARN|ERROR|FATAL, "params")
+		logger := parent.With(func(e Entry) { e.Int("thunder_frequency", 1000) })
+		logger = logger.With(func(e Entry) { e.String("foo", "bar") })
+		logger.Fatal("message")
+		json := `{"level":"fatal","message":"message","params":{"thunder_frequency":1000,"foo":"bar"}}` + "\n"
+		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+	})
 }

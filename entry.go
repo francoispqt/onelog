@@ -84,7 +84,7 @@ func (e ChainEntry) Write() {
 	}
 	// first find writer for level
 	// if none, stop
-	e.Entry.l.closeEntry(e.enc)
+	e.Entry.l.closeEntry(e.Entry)
 	e.Entry.l.finalizeIfContext(e.Entry)
 	e.Entry.enc.Release()
 }

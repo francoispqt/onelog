@@ -111,8 +111,17 @@ func TestOnelogWithoutFields(t *testing.T) {
 	t.Run("basic-message-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			assert.Equal(t, `{"level":"fatal","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.Fatal("message")
-		assert.Equal(t, `{"level":"fatal","message":"message"}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-disabled-level-info", func(t *testing.T) {
 		w := newWriter()
@@ -174,8 +183,17 @@ func TestOnelogContextWithoutFields(t *testing.T) {
 	t.Run("basic-message-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := NewContext(w, DEBUG|INFO|WARN|ERROR|FATAL, "params")
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			assert.Equal(t, `{"level":"fatal","message":"message","params":{}}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.Fatal("message")
-		assert.Equal(t, `{"level":"fatal","message":"message","params":{}}`+"\n", string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("basic-message-disabled-level-info", func(t *testing.T) {
 		w := newWriter()
@@ -204,8 +222,17 @@ func TestOnelogContextWithoutFields(t *testing.T) {
 	t.Run("basic-message-disabled-level-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := New(w, INFO|WARN|ERROR|DEBUG)
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r != nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.Fatal("message")
-		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
 	})
 }
 
@@ -272,14 +299,23 @@ func TestOnelogWithFields(t *testing.T) {
 	t.Run("fields-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success","int64":120}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
 			e.Int64("int64", 120)
 		})
-		json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success","int64":120}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("fields-disabled-level-info", func(t *testing.T) {
 		w := newWriter()
@@ -328,13 +364,22 @@ func TestOnelogWithFields(t *testing.T) {
 	t.Run("basic-message-disabled-level-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := New(w, INFO|WARN|ERROR|DEBUG)
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
+			assert.False(t, w.called, "writer should not be called")
+			r := recover()
+			if r != nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
 		})
-		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
-		assert.False(t, w.called, "writer should not be called")
 	})
 }
 
@@ -395,9 +440,18 @@ func TestOnelogHook(t *testing.T) {
 			e.String("action", "login")
 			e.String("result", "success")
 		})
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success"}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.Fatal("message")
-		json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success"}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("hook-fields-info", func(t *testing.T) {
 		w := newWriter()
@@ -458,6 +512,17 @@ func TestOnelogHook(t *testing.T) {
 	t.Run("hook-fields-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := New(w, DEBUG|INFO|WARN|ERROR|FATAL)
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success","field":"field"}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.Hook(func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
@@ -466,8 +531,6 @@ func TestOnelogHook(t *testing.T) {
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("field", "field")
 		})
-		json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success","field":"field"}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 }
 
@@ -565,21 +628,38 @@ func TestOnelogContext(t *testing.T) {
 		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"test","test":"test"}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.Fatal("test")
-		json := `{"level":"fatal","message":"test","test":"test"}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
-
 	})
 	t.Run("context-fatal-fields", func(t *testing.T) {
 		w := newWriter()
 		logger := New(w, ALL).With(func(e Entry) {
 			e.String("test", "test")
 		})
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"test","test":"test","field":"field"}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("test", func(e Entry) {
 			e.String("field", "field")
 		})
-		json := `{"level":"fatal","message":"test","test":"test","field":"field"}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 }
 
@@ -666,14 +746,23 @@ func TestOnelogHooksWithAndContext(t *testing.T) {
 		w := newWriter()
 		parent := NewContext(w, DEBUG|INFO|WARN|ERROR|FATAL, "params")
 		logger := parent.Hook(func(e Entry) { e.Int("thunder_frequency", 1000) })
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","thunder_frequency":1000,"params":{"userID":"123456","action":"login","result":"success","int64":120}}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
 			e.Int64("int64", 120)
 		})
-		json := `{"level":"fatal","message":"message","thunder_frequency":1000,"params":{"userID":"123456","action":"login","result":"success","int64":120}}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 }
 
@@ -745,14 +834,23 @@ func TestOnelogWithAndContext(t *testing.T) {
 		w := newWriter()
 		parent := NewContext(w, DEBUG|INFO|WARN|ERROR|FATAL, "params")
 		logger := parent.With(func(e Entry) { e.Int("thunder_frequency", 1000) })
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","params":{"userID":"123456","action":"login","result":"success","int64":120,"thunder_frequency":1000}}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
 			e.Int64("int64", 120)
 		})
-		json := `{"level":"fatal","message":"message","params":{"userID":"123456","action":"login","result":"success","int64":120,"thunder_frequency":1000}}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 }
 
@@ -819,14 +917,23 @@ func TestOnelogWithFieldsAndContext(t *testing.T) {
 	t.Run("fields-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := NewContext(w, DEBUG|INFO|WARN|ERROR|FATAL, "params")
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","params":{"userID":"123456","action":"login","result":"success","int64":120}}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
 			e.Int64("int64", 120)
 		})
-		json := `{"level":"fatal","message":"message","params":{"userID":"123456","action":"login","result":"success","int64":120}}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("fields-disabled-level-info", func(t *testing.T) {
 		w := newWriter()
@@ -875,13 +982,22 @@ func TestOnelogWithFieldsAndContext(t *testing.T) {
 	t.Run("basic-message-disabled-level-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := New(w, INFO|WARN|ERROR|DEBUG)
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
+			assert.False(t, w.called, "writer should not be called")
+			r := recover()
+			if r != nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
 		})
-		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
-		assert.False(t, w.called, "writer should not be called")
 	})
 }
 
@@ -953,14 +1069,23 @@ func TestOnelogNoContextFromContextLogger(t *testing.T) {
 		w := newWriter()
 		parent := NewContext(w, DEBUG|INFO|WARN|ERROR|FATAL, "params")
 		logger := parent.WithContext("")
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success","int64":120}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
 			e.Int64("int64", 120)
 		})
-		json := `{"level":"fatal","message":"message","userID":"123456","action":"login","result":"success","int64":120}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 	t.Run("fields-disabled-level-info", func(t *testing.T) {
 		w := newWriter()
@@ -1009,13 +1134,22 @@ func TestOnelogNoContextFromContextLogger(t *testing.T) {
 	t.Run("basic-message-disabled-level-fatal", func(t *testing.T) {
 		w := newWriter()
 		logger := New(w, INFO|WARN|ERROR|DEBUG)
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
+			assert.False(t, w.called, "writer should not be called")
+			r := recover()
+			if r != nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWithFields("message", func(e Entry) {
 			e.String("userID", "123456")
 			e.String("action", "login")
 			e.String("result", "success")
 		})
-		assert.Equal(t, string(w.b), ``, "bytes written to the writer dont equal expected result")
-		assert.False(t, w.called, "writer should not be called")
 	})
 }
 
@@ -1084,13 +1218,23 @@ func TestOnelogFieldsChainAndContext(t *testing.T) {
 		w := newWriter()
 		parent := NewContext(w, DEBUG|INFO|WARN|ERROR|FATAL, "params")
 		logger := parent.With(func(e Entry) { e.Int("thunder_frequency", 1000) })
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","params":{"userID":"123456","action":"login","result":"success","int64":120,"thunder_frequency":1000}}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.FatalWith("message").
 			String("userID", "123456").
 			String("action", "login").
 			String("result", "success").
 			Int64("int64", 120).Write()
-		json := `{"level":"fatal","message":"message","params":{"userID":"123456","action":"login","result":"success","int64":120,"thunder_frequency":1000}}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+
 	})
 
 	t.Run("multi-augmented-logger", func(t *testing.T) {
@@ -1098,8 +1242,17 @@ func TestOnelogFieldsChainAndContext(t *testing.T) {
 		parent := NewContext(w, DEBUG|INFO|WARN|ERROR|FATAL, "params")
 		logger := parent.With(func(e Entry) { e.Int("thunder_frequency", 1000) })
 		logger = logger.With(func(e Entry) { e.String("foo", "bar") })
+		logger.ExitFn = func(c int) {
+			panic("os.Exit called")
+		}
+		defer func() {
+			json := `{"level":"fatal","message":"message","params":{"thunder_frequency":1000,"foo":"bar"}}` + "\n"
+			assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
+			r := recover()
+			if r == nil {
+				t.Errorf("logger.Fatal() recover = %v", r)
+			}
+		}()
 		logger.Fatal("message")
-		json := `{"level":"fatal","message":"message","params":{"thunder_frequency":1000,"foo":"bar"}}` + "\n"
-		assert.Equal(t, json, string(w.b), "bytes written to the writer dont equal expected result")
 	})
 }

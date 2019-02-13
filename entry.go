@@ -75,6 +75,7 @@ func (e Entry) Array(k string, obj gojay.MarshalerJSONArray) Entry {
 type ChainEntry struct {
 	Entry
 	disabled bool
+	exit     bool
 }
 
 // Info logs an entry with INFO level.
@@ -87,6 +88,10 @@ func (e ChainEntry) Write() {
 	e.Entry.l.closeEntry(e.Entry)
 	e.Entry.l.finalizeIfContext(e.Entry)
 	e.Entry.enc.Release()
+
+	if e.exit {
+		e.Entry.l.ExitFn(1)
+	}
 }
 
 // String adds a string to the log entry.

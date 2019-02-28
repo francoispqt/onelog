@@ -3,6 +3,7 @@ package onelog
 import (
 	"io"
 	"io/ioutil"
+	"os"
 	"runtime"
 	"strconv"
 
@@ -40,12 +41,16 @@ type Encoder = gojay.Encoder
 // Object is an alias to gojay.EncodeObjectFunc.
 type Object = gojay.EncodeObjectFunc
 
+// ExitFunc is used to exit the app, `os.Exit()` is set as default on `New()`
+type ExitFunc func(int)
+
 // Logger is the type representing a logger.
 type Logger struct {
 	hook        func(Entry)
 	w           io.Writer
 	levels      uint8
 	ctx         []func(Entry)
+	ExitFn      ExitFunc
 	contextName string
 }
 
@@ -58,6 +63,7 @@ func New(w io.Writer, levels uint8) *Logger {
 	return &Logger{
 		w:      w,
 		levels: levels,
+		ExitFn: os.Exit,
 	}
 }
 
@@ -478,6 +484,8 @@ func (l *Logger) Fatal(msg string) {
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
+
+	l.ExitFn(1)
 }
 
 // FatalWith returns a ChainEntry with FATAL level.
@@ -507,6 +515,7 @@ func (l *Logger) FatalWith(msg string) ChainEntry {
 	}
 
 	l.openEntry(e.Entry.enc)
+	e.exit = true
 	return e
 }
 
@@ -537,6 +546,7 @@ func (l *Logger) FatalWithFields(msg string, fields func(Entry)) {
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
+	l.ExitFn(1)
 }
 
 func (l *Logger) openEntry(enc *Encoder) {

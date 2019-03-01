@@ -78,6 +78,7 @@ func NewContext(w io.Writer, levels uint8, contextName string) *Logger {
 		w:           w,
 		levels:      levels,
 		contextName: contextName,
+		ExitFn:      os.Exit,
 	}
 }
 
@@ -93,6 +94,7 @@ func (l *Logger) copy(ctxName string) *Logger {
 		w:           l.w,
 		hook:        l.hook,
 		contextName: ctxName,
+		ExitFn:      l.ExitFn,
 	}
 	if len(l.ctx) > 0 {
 		var ctx = make([]func(e Entry), len(l.ctx))
@@ -485,7 +487,7 @@ func (l *Logger) Fatal(msg string) {
 
 	e.enc.Release()
 
-	l.ExitFn(1)
+	l.exit(1)
 }
 
 // FatalWith returns a ChainEntry with FATAL level.
@@ -546,7 +548,7 @@ func (l *Logger) FatalWithFields(msg string, fields func(Entry)) {
 	l.finalizeIfContext(e)
 
 	e.enc.Release()
-	l.ExitFn(1)
+	l.exit(1)
 }
 
 func (l *Logger) openEntry(enc *Encoder) {
@@ -615,6 +617,14 @@ func (l *Logger) closeEntry(e Entry) {
 	if l.contextName == "" {
 		e.enc.Write()
 	}
+}
+
+func (l *Logger) exit(code int) {
+	if l.ExitFn == nil {
+		// fallback to os.Exit to prevent panic incase set as nil.
+		os.Exit(code)
+	}
+	l.ExitFn(code)
 }
 
 // Caller returns the caller in the stack trace, skipped n times.

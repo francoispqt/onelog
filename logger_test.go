@@ -2,6 +2,8 @@ package onelog
 
 import (
 	"errors"
+	"os"
+	"os/exec"
 	"strings"
 	"testing"
 
@@ -80,7 +82,7 @@ func TestOnelogFeature(t *testing.T) {
 		logger := New(nil, DEBUG|INFO|WARN|ERROR|FATAL)
 		str := logger.Caller(1)
 		strs := strings.Split(str, "/")
-		assert.Equal(t, "logger_test.go:81", strs[len(strs)-1], "file should be logger_test.go:81")
+		assert.Equal(t, "logger_test.go:83", strs[len(strs)-1], "file should be logger_test.go:81")
 	})
 }
 func TestOnelogWithoutFields(t *testing.T) {
@@ -1255,4 +1257,26 @@ func TestOnelogFieldsChainAndContext(t *testing.T) {
 		}()
 		logger.Fatal("message")
 	})
+}
+
+func TestFatalActualOsExit(t *testing.T) {
+	if os.Getenv("FatalActualOsExit") == "1" {
+		parent := NewContext(os.Stdout, DEBUG|INFO|WARN|ERROR|FATAL, "params")
+		logger := parent.WithContext("")
+		logger.ExitFn = nil
+		logger.FatalWithFields("message", func(e Entry) {
+			e.String("userID", "123456")
+			e.String("action", "login")
+			e.String("result", "success")
+			e.Int64("int64", 120)
+		})
+		return
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=TestFatalActualOsExit")
+	cmd.Env = append(os.Environ(), "FatalActualOsExit=1")
+	err := cmd.Run()
+	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+		return
+	}
+	t.Fatalf("process ran with err %v, want exit status 1", err)
 }

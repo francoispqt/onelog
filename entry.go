@@ -90,7 +90,7 @@ func (e ChainEntry) Write() {
 	e.Entry.enc.Release()
 
 	if e.exit {
-		e.Entry.l.ExitFn(1)
+		e.Entry.l.exit(1)
 	}
 }
 

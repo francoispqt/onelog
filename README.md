@@ -236,13 +236,13 @@ logger := onelog.New(
     e.String("userID", "123456")
 })
 
-logger.Info("user logged in") // {"level":"info","message":"user logged in","userID","123456"}
+logger.Info("user logged in") // {"level":"info","message":"user logged in","userID":"123456"}
 
-logger.Debug("wtf?") // {"level":"debug","message":"wtf?","userID","123456"}
+logger.Debug("wtf?") // {"level":"debug","message":"wtf?","userID":"123456"}
 
 logger.ErrorWithFields("Oops", func(e onelog.Entry) {
     e.String("error_code", "ROFL")
-}) // {"level":"error","message":"oops","userID","123456","error_code":"ROFL"}
+}) // {"level":"error","message":"oops","userID":"123456","error_code":"ROFL"}
 ```
 
 ## Change levels txt values, message and/or level keys
